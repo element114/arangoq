@@ -1,20 +1,20 @@
-use crate::{ArangoQuery, Collection, ExecuteArangoQuery, ArangoResponse};
-use futures::{Future};
-use serde::{Serialize, Deserialize};
+use crate::{ArangoQuery, ArangoResponse, Collection, ExecuteArangoQuery};
+use futures::Future;
 use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
 #[cfg(feature = "actixclient")]
-use actix_web::client::{Client};
+use actix_web::client::Client;
 #[cfg(feature = "actixclient")]
-use actix_web::{ Error, http::header, dev::Body };
+use actix_web::{dev::Body, http::header, Error};
 
-pub struct ArangoConnection<T> {
-    host: String,
-    client: Client,
-    phantom: PhantomData<T>,
+pub struct ArangoConnection<'a, T> {
+    pub host: &'a str,
+    pub client: Client,
+    pub phantom: PhantomData<T>,
 }
 
 #[cfg(feature = "actixclient")]
@@ -25,17 +25,19 @@ impl From<ArangoQuery> for Body {
     }
 }
 
-impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnection<T> {
+impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnection<'_,T> {
     type Output = Result<ArangoResponse<T>, Error>;
 
     fn execute_query(&self, query: ArangoQuery) -> Self::Output {
         #[cfg(feature = "actixclient")]
         {
-        self.client.post(format!("{}/_api/cursor", self.host))
-        .header(header::CONTENT_TYPE, "application/json")
-        .send_body(query)
-        .map_err(Error::from)
-        .and_then(|mut response| response.json::<>().map_err(Error::from).wait()).wait()
+            self.client
+                .post(format!("{}/_api/cursor", self.host))
+                .header(header::CONTENT_TYPE, "application/json")
+                .send_body(query)
+                .map_err(Error::from)
+                .and_then(|mut response| response.json().map_err(Error::from).wait())
+                .wait()
         }
     }
 }
@@ -45,15 +47,15 @@ pub fn _get_from_collection(
     // collection: &Collection,
     coll_name: &str,
     client: &Client,
-    host: &str
+    host: &str,
 ) -> impl Future<Item = serde_json::Value, Error = Error> {
     #[cfg(feature = "actixclient")]
     {
-    let req = client.get(format!("{}/_api/collection/{}", host, coll_name));
+        let req = client.get(format!("{}/_api/collection/{}", host, coll_name));
 
-    req.send()
-        .map_err(Error::from)
-        .and_then(|mut response| response.json().map_err(Error::from).wait())
+        req.send()
+            .map_err(Error::from)
+            .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
 }
 
@@ -64,13 +66,13 @@ pub fn _db_query(
 ) -> impl Future<Item = serde_json::Value, Error = Error> {
     #[cfg(feature = "actixclient")]
     {
-    let req = client.post(format!("{}/_api/cursor", host))
-        .header(header::CONTENT_TYPE, "application/json");
+        let req = client
+            .post(format!("{}/_api/cursor", host))
+            .header(header::CONTENT_TYPE, "application/json");
 
-        req
-        .send_body(query)
-        .map_err(Error::from)
-        .and_then(|mut response| response.json().map_err(Error::from).wait())
+        req.send_body(query)
+            .map_err(Error::from)
+            .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
 }
 

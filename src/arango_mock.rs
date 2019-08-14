@@ -4,13 +4,15 @@ use std::collections::HashMap;
 
 #[allow(dead_code)] // used in test
 pub struct ArangoMock {
-    requests_and_responses: HashMap<String, String>
+    requests_and_responses: HashMap<String, String>,
 }
 
 impl ArangoMock {
     #[allow(dead_code)] // used in test
     pub fn new(requests_and_responses: HashMap<String, String>) -> Self {
-        Self { requests_and_responses }
+        Self {
+            requests_and_responses,
+        }
     }
 }
 

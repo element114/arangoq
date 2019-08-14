@@ -52,11 +52,7 @@ pub trait Replace {
 }
 
 pub trait Update {
-    fn update<Key: Serialize, Update: Serialize>(
-        &self,
-        key: Key,
-        update: Update,
-    ) -> ArangoQuery;
+    fn update<Key: Serialize, Update: Serialize>(&self, key: Key, update: Update) -> ArangoQuery;
 }
 
 // Delete

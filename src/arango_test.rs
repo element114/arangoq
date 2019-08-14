@@ -12,19 +12,20 @@ mod tests {
 
     #[derive(Serialize, Deserialize)]
     struct TestUser {
-        name: String
+        name: String,
     }
 
     impl TestUser {
         fn new(name: &str) -> Self {
-            Self { name: name.to_owned() }
+            Self {
+                name: name.to_owned(),
+            }
         }
     }
 
     #[test]
     fn test_collection_insert() {
-        let query = test_collection()
-            .insert(&TestUser::new("Paul McCartney"));
+        let query = test_collection().insert(&TestUser::new("Paul McCartney"));
         let expected = r#"{"query":"INSERT @value INTO @@collection","bindVars":{"@collection":"Beatles","value":{"name":"Paul McCartney"}}}"#;
 
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
@@ -72,13 +73,12 @@ mod tests {
             instrument: String,
         }
 
-        let query = test_collection()
-            .update(
-                "Paul",
-                &Instrument {
-                    instrument: String::from("bass"),
-                },
-            );
+        let query = test_collection().update(
+            "Paul",
+            &Instrument {
+                instrument: String::from("bass"),
+            },
+        );
         let expected =
             r#"{"query":"UPDATE @key WITH @update IN @@collection","bindVars":{"@collection":"Beatles","key":"Paul","update":{"instrument":"bass"}}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
@@ -227,7 +227,12 @@ mod tests {
 
     fn test_response() -> ArangoResponse<U> {
         ArangoResponse::new(
-            vec![U::new("13221", "Characters/13221", "_ZEJkt1W---", "John Doe")],
+            vec![U::new(
+                "13221",
+                "Characters/13221",
+                "_ZEJkt1W---",
+                "John Doe",
+            )],
             false,
             false,
             ArangoResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654956817626953e-4, 2107, vec![]),
@@ -242,7 +247,6 @@ mod tests {
 
     #[test]
     fn test_arango_response_ser_deser() {
-
         assert_eq!(
             test_response_json(),
             serde_json::to_string(&test_response()).unwrap()
@@ -264,9 +268,6 @@ mod tests {
         let query = || Collection::new("Characters", CollectionType::Document).get_by_key("13221");
         let query_json = || serde_json::to_string(&query()).unwrap();
         let test_mock = ArangoMock::new(hashmap![query_json() => test_response_json().to_owned()]);
-        assert_eq!(
-            test_response_json(),
-            &test_mock.execute_query(query())
-        );
+        assert_eq!(test_response_json(), &test_mock.execute_query(query()));
     }
 }

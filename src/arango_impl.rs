@@ -13,7 +13,7 @@ impl ArangoQuery {
         }
     }
 
-    pub(crate) fn with_bind_vars(query: &str, bind_vars: BTreeMap<String, Value>) -> Self {
+    pub fn with_bind_vars(query: &str, bind_vars: BTreeMap<String, Value>) -> Self {
         Self {
             query: String::from(query),
             bind_vars,

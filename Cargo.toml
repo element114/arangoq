@@ -22,3 +22,6 @@ arangoq_derive = { path = "./arangoq_derive" }
 default = ["actixclient"]
 actixclient = ["awc", "actix-web"]
 reqwestclient = ["reqwest"]
+
+[dev-dependencies]
+actix = "0.8.3"

@@ -23,7 +23,8 @@ impl<T> ArangoResponse<T> {
         cached: bool,
         extra: ArangoResponseExtra,
         error: bool,
-        code: u16) -> Self {
+        code: u16,
+    ) -> Self {
         Self {
             result,
             has_more,
@@ -51,7 +52,8 @@ impl ArangoResponseExtra {
         http_requests: usize,
         execution_time: f64,
         peak_memory_usage: usize,
-        warnings: Vec<String>) -> Self {
+        warnings: Vec<String>,
+    ) -> Self {
         Self {
             stats: ArangoStats {
                 writes_executed,
