@@ -1,4 +1,4 @@
-use crate::{ArangoQuery, ArangoResponse, Collection, ExecuteArangoQuery};
+use crate::{ArangoQuery, ArangoResponse, ExecuteArangoQuery};
 use futures::Future;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};

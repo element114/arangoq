@@ -270,4 +270,22 @@ mod tests {
         let test_mock = ArangoMock::new(hashmap![query_json() => test_response_json().to_owned()]);
         assert_eq!(test_response_json(), &test_mock.execute_query(query()));
     }
+
+    #[test]
+    fn test_arango_connection() {
+        let query = || Collection::new("Characters", CollectionType::Document).get_by_key("13221");
+        let query_json = || serde_json::to_string(&query()).unwrap();
+        let test_mock = ArangoMock::new(hashmap![query_json() => test_response_json().to_owned()]);
+
+        let mock_result: String = query().exec(&test_mock);
+        assert_eq!(test_response_json(), &mock_result);
+        let aconn: ArangoConnection<TestUser> = ArangoConnection {
+            host: "http://127.0.0.1:8529",
+            client: actix_web::client::Client::new(),
+            phantom: std::marker::PhantomData::<TestUser>,
+        };
+        let query =Collection::new("Characters", CollectionType::Document).get_by_key("13221");
+        let real_res = query.exec(&aconn);
+        assert!(real_res.is_err());
+    }
 }

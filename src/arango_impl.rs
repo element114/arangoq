@@ -19,6 +19,9 @@ impl ArangoQuery {
             bind_vars,
         }
     }
+    pub fn exec<C: ExecuteArangoQuery>(self, dbconnection: &C) -> C::Output {
+        dbconnection.execute_query(self)
+    }
 }
 
 impl Default for ArangoQuery {
