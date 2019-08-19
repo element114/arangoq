@@ -33,6 +33,7 @@ impl From<ArangoQuery> for Body {
     }
 }
 
+/// Check https://www.arangodb.com/docs/stable/http/database.html
 #[derive(Clone)]
 pub struct ArangoConnection {
     pub host: Arc<String>,

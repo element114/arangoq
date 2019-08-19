@@ -2,20 +2,26 @@ use super::*;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ArangoResponse<T> {
-    result: Vec<T>,
+    pub result: Vec<T>,
 
     #[serde(rename = "hasMore")]
-    has_more: bool,
+    pub has_more: bool,
 
-    cached: bool,
+    pub cached: bool,
 
-    extra: ArangoResponseExtra,
+    pub extra: ArangoResponseExtra,
 
-    error: bool,
+    pub error: bool,
 
-    code: u16,
+    pub code: u16,
+
+    #[serde(rename = "errorMessage", skip_serializing_if = "String::is_empty", default)]
+    pub error_message: String,
+    #[serde(rename = "errorNum", skip_serializing, default)]
+    pub error_num: u64,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl<T> ArangoResponse<T> {
     pub fn new(
         result: Vec<T>,
@@ -24,6 +30,8 @@ impl<T> ArangoResponse<T> {
         extra: ArangoResponseExtra,
         error: bool,
         code: u16,
+        error_message: String,
+        error_num: u64,
     ) -> Self {
         Self {
             result,
@@ -32,14 +40,16 @@ impl<T> ArangoResponse<T> {
             extra,
             error,
             code,
+            error_message,
+            error_num,
         }
     }
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ArangoResponseExtra {
-    stats: ArangoStats,
-    warnings: Vec<String>,
+    pub stats: ArangoStats,
+    pub warnings: Vec<String>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -74,25 +84,25 @@ impl ArangoResponseExtra {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ArangoStats {
     #[serde(rename = "writesExecuted")]
-    writes_executed: usize,
+    pub writes_executed: usize,
 
     #[serde(rename = "writesIgnored")]
-    writes_ignored: usize,
+    pub writes_ignored: usize,
 
     #[serde(rename = "scannedFull")]
-    scanned_full: usize,
+    pub scanned_full: usize,
 
     #[serde(rename = "scannedIndex")]
-    scanned_index: usize,
+    pub scanned_index: usize,
 
-    filtered: usize,
+    pub filtered: usize,
 
     #[serde(rename = "httpRequests")]
-    http_requests: usize,
+    pub http_requests: usize,
 
     #[serde(rename = "executionTime")]
-    execution_time: f64,
+    pub execution_time: f64,
 
     #[serde(rename = "peakMemoryUsage")]
-    peak_memory_usage: usize,
+    pub peak_memory_usage: usize,
 }
