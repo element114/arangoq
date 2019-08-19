@@ -5,17 +5,17 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 #[cfg(feature = "actixclient")]
 use actix_web::client::Client;
 #[cfg(feature = "actixclient")]
 use actix_web::{dev::Body, http::header, Error};
 
-pub struct ArangoConnection<'a, T> {
-    pub host: &'a str,
-    pub client: Client,
-    pub phantom: PhantomData<T>,
-}
+#[cfg(not(feature = "actixclient"))]
+use reqwest::r#async::{ Client, Body };
+#[cfg(not(feature = "actixclient"))]
+type Error = Box<std::error::Error>;
 
 #[cfg(feature = "actixclient")]
 impl From<ArangoQuery> for Body {
@@ -25,19 +25,70 @@ impl From<ArangoQuery> for Body {
     }
 }
 
-impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnection<'_,T> {
+#[cfg(not(feature = "actixclient"))]
+impl From<ArangoQuery> for Body {
+    fn from(item: ArangoQuery) -> Self {
+        let b = serde_json::to_vec(&item).unwrap();
+        b.into()
+    }
+}
+
+#[derive(Clone)]
+pub struct ArangoConnection {
+    pub host: Arc<String>,
+    pub client: Arc<Client>,
+    // pub phantom: PhantomData<T>,
+}
+impl ArangoConnection {
+    pub fn new(host: String, client: Client) -> Self {
+        ArangoConnection {
+            host: Arc::new(host),
+            client: Arc::new(client),
+            // phantom: PhantomData::<T>,
+        }
+    }
+}
+
+pub struct ArangoConnectionInternal<T> {
+    conn: ArangoConnection,
+    phantom: PhantomData<T>,
+}
+
+impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnectionInternal<T> {
     type Output = Result<ArangoResponse<T>, Error>;
 
     fn execute_query(&self, query: ArangoQuery) -> Self::Output {
         #[cfg(feature = "actixclient")]
         {
-            self.client
-                .post(format!("{}/_api/cursor", self.host))
+            self.conn
+                .client
+                .post(format!("{}/_api/cursor", self.conn.host))
                 .header(header::CONTENT_TYPE, "application/json")
                 .send_body(query)
                 .map_err(Error::from)
                 .and_then(|mut response| response.json().map_err(Error::from).wait())
                 .wait()
+        }
+        #[cfg(not(feature = "actixclient"))]
+        {
+            self.conn
+            .client
+            .post(format!("{}/_api/cursor", self.conn.host).as_str())
+            .header("content-type", "application/json")
+            .body(query)
+            .send()
+            .map_err(Error::from)
+            .and_then(|mut response| response.json().map_err(Error::from).wait())
+            .wait()
+        }
+    }
+}
+
+impl<T> From<ArangoConnection> for ArangoConnectionInternal<T> {
+    fn from(conn: ArangoConnection) -> Self {
+        ArangoConnectionInternal {
+            conn: conn.clone(),
+            phantom: PhantomData::<T>,
         }
     }
 }
@@ -57,6 +108,13 @@ pub fn _get_from_collection(
             .map_err(Error::from)
             .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
+    #[cfg(not(feature = "actixclient"))]
+    {
+        client.get(format!("{}/_api/collection/{}", host, coll_name).as_str())
+        .send()
+        .map_err(Error::from)
+        .and_then(|mut response| response.json().map_err(Error::from).wait())
+    }
 }
 
 pub fn _db_query(
@@ -74,40 +132,17 @@ pub fn _db_query(
             .map_err(Error::from)
             .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
+    #[cfg(not(feature = "actixclient"))]
+    {
+        client
+            .post(format!("{}/_api/cursor", host).as_str())
+            .header("content-type", "application/json")
+            .body(query)
+            .send()
+            .map_err(Error::from)
+            .and_then(|mut response| response.json().map_err(Error::from).wait())
+    }
 }
-
-// #[derive(Debug, Serialize, Deserialize)]
-// pub struct DbResponse {
-//     pub code: i64,
-//     pub error: bool,
-//     pub result: Vec<Result>,
-// }
-
-// #[derive(Debug, Serialize, Deserialize)]
-// pub struct Result {
-//     #[serde(rename = "globallyUniqueId")]
-//     pub globally_unique_id: String,
-//     pub id: String,
-//     #[serde(rename = "isSystem")]
-//     pub is_system: bool,
-//     pub name: String,
-//     pub status: i64,
-//     #[serde(rename = "type")]
-//     pub result_type: i64,
-// }
-
-// pub trait Queriable<D> {
-//     type Result;
-
-//     fn query(collection: Collection, client: &Client, host: &str, queriable: D) -> Self::Result;
-// }
-
-// impl<D: Remove> Queriable<D> for ArangoQuery {
-//     type Result = Result<serde_json::Value,Error>;
-//     fn query(collection: Collection, client: &Client, host: &str, queriable: D) -> Self::Result {
-//         db_cmd(collection, client, host).wait()
-//     }
-// }
 
 /// This struct contains all the props the db might include on top of user defined ones.
 ///

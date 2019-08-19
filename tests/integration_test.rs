@@ -3,40 +3,37 @@ use arangoq::*;
 
 use serde::{Deserialize, Serialize};
 use serde_json::value::Value;
-use std::marker::PhantomData;
-use std::collections::BTreeMap;
+// use std::marker::PhantomData;
 use maplit::*;
-use futures::{lazy};
+use std::collections::BTreeMap;
 
-#[derive(Serialize, Deserialize, ArangoBuilder)]
+#[derive(Serialize, Deserialize, ArangoBuilder, Debug)]
 pub struct TestUser {
     name: String,
 }
 
+#[cfg(feature = "actixclient")]
+#[ignore]
 #[test]
 fn test_arango_connection_actix() {
+    // use actix::prelude::*;
     use actix_web::client::Client;
     use actix_web::test;
-    use actix::*;
 
-    // std::env::set_var("RUST_BACKTRACE", "1");
-    let host = "http://localhost:8529";
-    let client = Client::default();
-    let conn = ArangoConnection {
-        host,
-        client,
-        phantom: PhantomData::<TestUser>,
-    };
-    let collection_name = "TestUsers";
-    let query = TestUser::query_builder(collection_name)
-        .read()
-        .filter()
-        .name_eq(&"John Lennon".to_owned())
-        .build();
-    // Arbiter::new().exec_fn(conn.execute_query(query));
-    // assert!(res.is_ok());
+    std::env::set_var("RUST_BACKTRACE", "1");
+    let aconn = ArangoConnection::new("http://127.0.0.1:8529".to_owned(), Client::default());
+    let collection_name = "Users";
+    let query = TestUser::query_builder(collection_name).read().build();
+    // let sys = System::new("db_example");
+    // let res = Arbiter::spawn(
+    //     futures::future::ok(query.exec(&aconn)).block_on()
+    // );
+    let res: Result<ArangoResponse<TestUser>, actix_web::Error> = test::block_on(query.exec(&aconn));
+    println!("{:#?}", res);
+    // sys.run();
 }
 
+#[cfg(feature = "actixclient")]
 #[ignore]
 #[test]
 fn test_db_get_from_collection() {

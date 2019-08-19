@@ -42,6 +42,7 @@ pub struct ArangoResponseExtra {
     warnings: Vec<String>,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl ArangoResponseExtra {
     pub fn new(
         writes_executed: usize,

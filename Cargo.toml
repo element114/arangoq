@@ -12,14 +12,14 @@ serde_derive = "1.0.97"
 serde_json = "1.0.40"
 actix-web = { version = "1.0", optional = true }
 awc = { version = "0.2", optional = true }
-reqwest = { version = "0.9.19", optional = true }
+reqwest = { version = "0.9.19", features= ["rustls-tls"], optional = true }
 futures = "0.1.28"
 maplit = "1.0.1"
 arangoq_derive = { path = "./arangoq_derive" }
 
 [features]
 # no features by default
-default = ["actixclient"]
+default = ["reqwestclient"]
 actixclient = ["awc", "actix-web"]
 reqwestclient = ["reqwest"]
 

@@ -2,7 +2,13 @@ use super::*;
 
 use maplit::*;
 
+use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
+
+#[cfg(feature = "actixclient")]
+use actix_web::Error;
+#[cfg(not(feature = "actixclient"))]
+type Error = Box<std::error::Error>;
 
 #[allow(dead_code)]
 impl ArangoQuery {
@@ -19,8 +25,13 @@ impl ArangoQuery {
             bind_vars,
         }
     }
-    pub fn exec<C: ExecuteArangoQuery>(self, dbconnection: &C) -> C::Output {
-        dbconnection.execute_query(self)
+    
+    pub fn exec<T: Serialize + DeserializeOwned>(
+        self,
+        dbconnection: &ArangoConnection,
+    ) -> Result<ArangoResponse<T>, Error> {
+        let conn: ArangoConnectionInternal<T> = dbconnection.clone().into();
+        conn.execute_query(self)
     }
 }
 
