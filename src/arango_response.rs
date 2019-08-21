@@ -15,7 +15,11 @@ pub struct ArangoResponse<T> {
 
     pub code: u16,
 
-    #[serde(rename = "errorMessage", skip_serializing_if = "String::is_empty", default)]
+    #[serde(
+        rename = "errorMessage",
+        skip_serializing_if = "String::is_empty",
+        default
+    )]
     pub error_message: String,
     #[serde(rename = "errorNum", skip_serializing, default)]
     pub error_num: u64,

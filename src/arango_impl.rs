@@ -4,6 +4,7 @@ use maplit::*;
 
 use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
+use futures::future::Future;
 
 #[cfg(feature = "actixclient")]
 use actix_web::Error;
@@ -25,11 +26,11 @@ impl ArangoQuery {
             bind_vars,
         }
     }
-    
+
     pub fn exec<T: Serialize + DeserializeOwned>(
         self,
         dbconnection: &ArangoConnection,
-    ) -> Result<ArangoResponse<T>, Error> {
+    ) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
         let conn: ArangoConnectionInternal<T> = dbconnection.clone().into();
         conn.execute_query(self)
     }

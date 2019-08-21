@@ -1,4 +1,4 @@
-use crate::{ArangoQuery, ArangoResponse, ExecuteArangoQuery};
+use crate::{ArangoQuery, ArangoResponse};
 use futures::Future;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,7 @@ use actix_web::client::Client;
 use actix_web::{dev::Body, http::header, Error};
 
 #[cfg(not(feature = "actixclient"))]
-use reqwest::r#async::{ Client, Body };
+use reqwest::r#async::{Body, Client};
 #[cfg(not(feature = "actixclient"))]
 type Error = Box<std::error::Error>;
 
@@ -55,10 +55,10 @@ pub struct ArangoConnectionInternal<T> {
     phantom: PhantomData<T>,
 }
 
-impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnectionInternal<T> {
-    type Output = Result<ArangoResponse<T>, Error>;
-
-    fn execute_query(&self, query: ArangoQuery) -> Self::Output {
+// impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnectionInternal<T> {
+    // type Output = Result<ArangoResponse<T>, Error>;
+impl<T: Serialize + DeserializeOwned> ArangoConnectionInternal<T> {
+    pub fn execute_query(&self, query: ArangoQuery) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
         #[cfg(feature = "actixclient")]
         {
             self.conn
@@ -66,21 +66,19 @@ impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnectionInt
                 .post(format!("{}/_api/cursor", self.conn.host))
                 .header(header::CONTENT_TYPE, "application/json")
                 .send_body(query)
+                .and_then(|mut response| response.json())
                 .map_err(Error::from)
-                .and_then(|mut response| response.json().map_err(Error::from).wait())
-                .wait()
         }
         #[cfg(not(feature = "actixclient"))]
         {
             self.conn
-            .client
-            .post(format!("{}/_api/cursor", self.conn.host).as_str())
-            .header("content-type", "application/json")
-            .body(query)
-            .send()
-            .map_err(Error::from)
-            .and_then(|mut response| response.json().map_err(Error::from).wait())
-            .wait()
+                .client
+                .post(format!("{}/_api/cursor", self.conn.host).as_str())
+                .header("content-type", "application/json")
+                .body(query)
+                .send()
+                .and_then(|mut response| response.json())
+                .map_err(Error::from)
         }
     }
 }
@@ -103,18 +101,19 @@ pub fn _get_from_collection(
 ) -> impl Future<Item = serde_json::Value, Error = Error> {
     #[cfg(feature = "actixclient")]
     {
-        let req = client.get(format!("{}/_api/collection/{}", host, coll_name));
-
-        req.send()
+        client
+            .get(format!("{}/_api/collection/{}", host, coll_name))
+            .send()
+            .and_then(|mut response| response.json())
             .map_err(Error::from)
-            .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
     #[cfg(not(feature = "actixclient"))]
     {
-        client.get(format!("{}/_api/collection/{}", host, coll_name).as_str())
-        .send()
-        .map_err(Error::from)
-        .and_then(|mut response| response.json().map_err(Error::from).wait())
+        client
+            .get(format!("{}/_api/collection/{}", host, coll_name).as_str())
+            .send()
+            .and_then(|mut response| response.json())
+            .map_err(Error::from)
     }
 }
 
@@ -130,8 +129,8 @@ pub fn _db_query(
             .header(header::CONTENT_TYPE, "application/json");
 
         req.send_body(query)
+            .and_then(|mut response| response.json())
             .map_err(Error::from)
-            .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
     #[cfg(not(feature = "actixclient"))]
     {
@@ -140,8 +139,8 @@ pub fn _db_query(
             .header("content-type", "application/json")
             .body(query)
             .send()
+            .and_then(|mut response| response.json())
             .map_err(Error::from)
-            .and_then(|mut response| response.json().map_err(Error::from).wait())
     }
 }
 

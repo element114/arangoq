@@ -14,6 +14,10 @@ pub trait ExecuteArangoQuery {
     fn execute_query(&self, query: ArangoQuery) -> Self::Output;
 }
 
+// pub trait ExecuteArangoQueryFut {
+//     fn execute_query<T>(&self, query: ArangoQuery) -> Box<Future<Item = ArangoResponse<T>, Error = Error> + Send>;
+// }
+
 pub enum CollectionType {
     Document = 2,
     Edge = 3,
