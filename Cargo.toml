@@ -16,12 +16,14 @@ reqwest = { version = "0.9.19", optional = true }
 futures = "0.1.28"
 maplit = "1.0.1"
 arangoq_derive = { path = "./arangoq_derive" }
+actix = "0.8.3"
 
 [features]
 # no features by default
-default = ["reqwestclient"]
+default = ["reqwestactor"]
 actixclient = ["awc", "actix-web"]
-reqwestclient = ["reqwest"]
+reqwestasyc = ["reqwest"]
+reqwestactor = ["reqwest"]
 
 [dev-dependencies]
 actix = "0.8.3"

@@ -9,7 +9,7 @@ use futures::future::Future;
 #[cfg(feature = "actixclient")]
 use actix_web::Error;
 #[cfg(not(feature = "actixclient"))]
-type Error = Box<std::error::Error>;
+use reqwest::Error;
 
 #[allow(dead_code)]
 impl ArangoQuery {

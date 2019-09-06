@@ -12,10 +12,12 @@ use actix_web::client::Client;
 #[cfg(feature = "actixclient")]
 use actix_web::{dev::Body, http::header, Error};
 
-#[cfg(not(feature = "actixclient"))]
+#[cfg(feature = "reqwestasyc")]
 use reqwest::r#async::{Body, Client};
+#[cfg(all(feature = "reqwestactor", not(feature = "reqwestasyc")))]
+use reqwest::{Body, Client};
 #[cfg(not(feature = "actixclient"))]
-type Error = Box<std::error::Error>;
+use reqwest::Error;
 
 #[cfg(feature = "actixclient")]
 impl From<ArangoQuery> for Body {
@@ -25,7 +27,7 @@ impl From<ArangoQuery> for Body {
     }
 }
 
-#[cfg(not(feature = "actixclient"))]
+#[cfg(any(feature = "reqwestasyc", feature = "reqwestactor"))]
 impl From<ArangoQuery> for Body {
     fn from(item: ArangoQuery) -> Self {
         let b = serde_json::to_vec(&item).unwrap();
@@ -51,7 +53,7 @@ impl ArangoConnection {
 }
 
 pub struct ArangoConnectionInternal<T> {
-    conn: ArangoConnection,
+    pub conn: ArangoConnection,
     phantom: PhantomData<T>,
 }
 
@@ -69,16 +71,34 @@ impl<T: Serialize + DeserializeOwned> ArangoConnectionInternal<T> {
                 .and_then(|mut response| response.json())
                 .map_err(Error::from)
         }
-        #[cfg(not(feature = "actixclient"))]
+        #[cfg(feature = "reqwestasyc")]
         {
             self.conn
                 .client
                 .post(format!("{}/_api/cursor", self.conn.host).as_str())
                 .header("content-type", "application/json")
-                .body(query)
+                .json(&query)
                 .send()
                 .and_then(|mut response| response.json())
                 .map_err(Error::from)
+        }
+        #[cfg(all(feature = "reqwestactor", not(feature = "reqwestasyc")))]
+        {
+            futures::future::result(
+            self.conn
+                .client
+                .post(format!("{}/_api/cursor", self.conn.host).as_str())
+                .header("content-type", "application/json")
+                .json(&query)
+                .send()
+                .and_then(|mut r| r.json())
+            )
+            // if let Ok(res) = res {
+            //     if let Ok(j) = res.clone().json() {
+            //         return futures::future::ok(j);
+            //     }
+            // }
+            // return futures::future::err(res.unwrap_err());
         }
     }
 }
@@ -92,57 +112,57 @@ impl<T> From<ArangoConnection> for ArangoConnectionInternal<T> {
     }
 }
 
-// TODO: give this a better name
-pub fn _get_from_collection(
-    // collection: &Collection,
-    coll_name: &str,
-    client: &Client,
-    host: &str,
-) -> impl Future<Item = serde_json::Value, Error = Error> {
-    #[cfg(feature = "actixclient")]
-    {
-        client
-            .get(format!("{}/_api/collection/{}", host, coll_name))
-            .send()
-            .and_then(|mut response| response.json())
-            .map_err(Error::from)
-    }
-    #[cfg(not(feature = "actixclient"))]
-    {
-        client
-            .get(format!("{}/_api/collection/{}", host, coll_name).as_str())
-            .send()
-            .and_then(|mut response| response.json())
-            .map_err(Error::from)
-    }
-}
+// // TODO: give this a better name
+// pub fn _get_from_collection(
+//     // collection: &Collection,
+//     coll_name: &str,
+//     client: &Client,
+//     host: &str,
+// ) -> impl Future<Item = serde_json::Value, Error = Error> {
+//     #[cfg(feature = "actixclient")]
+//     {
+//         client
+//             .get(format!("{}/_api/collection/{}", host, coll_name))
+//             .send()
+//             .and_then(|mut response| response.json())
+//             .map_err(Error::from)
+//     }
+//     #[cfg(feature = "reqwestasyc")]
+//     {
+//         client
+//             .get(format!("{}/_api/collection/{}", host, coll_name).as_str())
+//             .send()
+//             .and_then(|mut response| response.json())
+//             .map_err(Error::from)
+//     }
+// }
 
-pub fn _db_query(
-    client: &Client,
-    host: &str,
-    query: ArangoQuery,
-) -> impl Future<Item = serde_json::Value, Error = Error> {
-    #[cfg(feature = "actixclient")]
-    {
-        let req = client
-            .post(format!("{}/_api/cursor", host))
-            .header(header::CONTENT_TYPE, "application/json");
+// pub fn _db_query(
+//     client: &Client,
+//     host: &str,
+//     query: ArangoQuery,
+// ) -> impl Future<Item = serde_json::Value, Error = Error> {
+//     #[cfg(feature = "actixclient")]
+//     {
+//         let req = client
+//             .post(format!("{}/_api/cursor", host))
+//             .header(header::CONTENT_TYPE, "application/json");
 
-        req.send_body(query)
-            .and_then(|mut response| response.json())
-            .map_err(Error::from)
-    }
-    #[cfg(not(feature = "actixclient"))]
-    {
-        client
-            .post(format!("{}/_api/cursor", host).as_str())
-            .header("content-type", "application/json")
-            .body(query)
-            .send()
-            .and_then(|mut response| response.json())
-            .map_err(Error::from)
-    }
-}
+//         req.send_body(query)
+//             .and_then(|mut response| response.json())
+//             .map_err(Error::from)
+//     }
+//     #[cfg(feature = "reqwestasyc")]
+//     {
+//         client
+//             .post(format!("{}/_api/cursor", host).as_str())
+//             .header("content-type", "application/json")
+//             .body(query)
+//             .send()
+//             .and_then(|mut response| response.json())
+//             .map_err(Error::from)
+//     }
+// }
 
 /// This struct contains all the props the db might include on top of user defined ones.
 ///

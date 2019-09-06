@@ -1,18 +1,19 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ArangoResponse<T> {
+    #[serde(default = "Vec::new")]
     pub result: Vec<T>,
 
-    #[serde(rename = "hasMore")]
+    #[serde(rename = "hasMore", default)]
     pub has_more: bool,
-
+    #[serde(default)]
     pub cached: bool,
-
+    #[serde(default)]
     pub extra: ArangoResponseExtra,
-
+    #[serde(default)]
     pub error: bool,
-
+    #[serde(default)]
     pub code: u16,
 
     #[serde(
@@ -50,9 +51,11 @@ impl<T> ArangoResponse<T> {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ArangoResponseExtra {
+    #[serde(default)]
     pub stats: ArangoStats,
+    #[serde(default)]
     pub warnings: Vec<String>,
 }
 
@@ -85,28 +88,28 @@ impl ArangoResponseExtra {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ArangoStats {
-    #[serde(rename = "writesExecuted")]
+    #[serde(rename = "writesExecuted", default)]
     pub writes_executed: usize,
 
-    #[serde(rename = "writesIgnored")]
+    #[serde(rename = "writesIgnored", default)]
     pub writes_ignored: usize,
 
-    #[serde(rename = "scannedFull")]
+    #[serde(rename = "scannedFull", default)]
     pub scanned_full: usize,
 
-    #[serde(rename = "scannedIndex")]
+    #[serde(rename = "scannedIndex", default)]
     pub scanned_index: usize,
-
+    #[serde(default)]
     pub filtered: usize,
 
-    #[serde(rename = "httpRequests")]
+    #[serde(rename = "httpRequests", default)]
     pub http_requests: usize,
 
-    #[serde(rename = "executionTime")]
+    #[serde(rename = "executionTime", default)]
     pub execution_time: f64,
 
-    #[serde(rename = "peakMemoryUsage")]
+    #[serde(rename = "peakMemoryUsage", default)]
     pub peak_memory_usage: usize,
 }

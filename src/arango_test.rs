@@ -291,4 +291,17 @@ mod tests {
         // let real_res: Result<ArangoResponse<TestUser>, actix_web::Error> = query.exec(&aconn);
         // assert!(real_res.is_err());
     }
+
+    /// a test for "missing field `hasMore` at line 1 column 85"
+    #[test]
+    fn test_arangoresponse() {
+        let responses = vec!(
+            r#"{"code":400,"error":true,"errorMessage":"expecting POST /_api/cursor","errorNum":400}"#
+        );
+        for r in responses {
+            let resp: Result<ArangoResponse<String>,serde_json::error::Error> = serde_json::from_str(r);
+            assert!(resp.is_ok());
+        }
+    }
+
 }
