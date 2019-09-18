@@ -3,6 +3,7 @@
 #[allow(unused_variables)]
 mod tests {
     use crate::*;
+    use std::collections::HashMap;
 
     fn test_collection() -> Collection {
         Collection::new("Beatles", CollectionType::Document)
@@ -302,6 +303,22 @@ mod tests {
             let resp: Result<ArangoResponse<String>,serde_json::error::Error> = serde_json::from_str(r);
             assert!(resp.is_ok());
         }
+    }
+
+    #[test]
+    fn test_collection_mandatory() {
+        let key = "1234";
+
+        assert_eq!(
+            CollectionMandatory {
+                _key: String::from(key),
+                _id: String::default(),
+                _rev: String::default(),
+                _old_rev: String::default(),
+                extra: HashMap::new(),
+            },
+            CollectionMandatory::with_key(key)
+        );
     }
 
 }

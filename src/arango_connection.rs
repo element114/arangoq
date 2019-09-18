@@ -179,16 +179,25 @@ impl<T> From<ArangoConnection> for ArangoConnectionInternal<T> {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
 pub struct CollectionMandatory {
     #[serde(skip_serializing_if = "String::is_empty", default)]
-    _key: String,
+    pub(crate) _key: String,
     #[serde(skip_serializing_if = "String::is_empty", default)]
-    _id: String,
+    pub(crate) _id: String,
     #[serde(skip_serializing_if = "String::is_empty", default)]
-    _rev: String,
+    pub(crate) _rev: String,
     #[serde(rename = "_oldRev", skip_serializing_if = "String::is_empty", default)]
-    _old_rev: String,
+    pub(crate) _old_rev: String,
 
     #[serde(flatten)]
-    extra: HashMap<String, Value>,
+    pub(crate) extra: HashMap<String, Value>,
+}
+
+impl CollectionMandatory {
+    pub fn with_key(_key: &str) -> Self {
+        Self {
+            _key: _key.to_owned(),
+            ..Default::default()
+        }
+    }
 }
 
 pub struct Context {
