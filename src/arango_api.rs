@@ -29,6 +29,21 @@ pub struct Collection {
     pub(crate) collection_type: CollectionType,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
+pub struct Edge {
+    pub(crate) _from: String,
+    pub(crate) _to: String,
+
+    #[serde(flatten)]
+    pub(crate) mandatory: CollectionMandatory,
+}
+
+impl Edge {
+    pub fn new(_from: &str, _to: &str) -> Self {
+        Self { _from: _from.to_owned(), _to: _to.to_owned(), ..Default::default() }
+    }
+}
+
 // Create
 
 pub trait Insert {

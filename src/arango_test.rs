@@ -300,7 +300,7 @@ mod tests {
             r#"{"code":400,"error":true,"errorMessage":"expecting POST /_api/cursor","errorNum":400}"#
         );
         for r in responses {
-            let resp: Result<ArangoResponse<String>,serde_json::error::Error> = serde_json::from_str(r);
+            let resp: Result<ArangoResponse<String>, serde_json::error::Error> = serde_json::from_str(r);
             assert!(resp.is_ok());
         }
     }
@@ -321,4 +321,28 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_edge() {
+        let e = Edge::new("users/1234", "orders/5678");
+        assert_eq!(
+            r#"{"_from":"users/1234","_to":"orders/5678"}"#,
+            serde_json::to_string(&e).unwrap()
+        );
+        let edge_json =
+            r#"{"_from":"users/1234","_to":"orders/5678","_key": "128958","_id":"api_has_order/128958","_rev":"_ZSoR-Le---"}"#;
+        assert_eq!(
+            Edge {
+                _from: String::from("users/1234"),
+                _to: String::from("orders/5678"),
+                mandatory: CollectionMandatory {
+                    _key: String::from("128958"),
+                    _id: String::from("api_has_order/128958"),
+                    _rev: String::from("_ZSoR-Le---"),
+                    _old_rev: String::default(),
+                    extra: HashMap::new()
+                },
+            },
+            serde_json::from_str(&edge_json).unwrap()
+        );
+    }
 }
