@@ -198,6 +198,14 @@ impl CollectionMandatory {
             ..Default::default()
         }
     }
+
+    pub fn id(&self) -> &str {
+        &self._id
+    }
+
+    pub fn key(&self) -> &str {
+        &self._key
+    }
 }
 
 pub struct Context {
