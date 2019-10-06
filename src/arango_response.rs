@@ -16,11 +16,7 @@ pub struct ArangoResponse<T> {
     #[serde(default)]
     pub code: u16,
 
-    #[serde(
-        rename = "errorMessage",
-        skip_serializing_if = "String::is_empty",
-        default
-    )]
+    #[serde(rename = "errorMessage", skip_serializing_if = "String::is_empty", default)]
     pub error_message: String,
     #[serde(rename = "errorNum", skip_serializing, default)]
     pub error_num: u64,
@@ -38,16 +34,7 @@ impl<T> ArangoResponse<T> {
         error_message: String,
         error_num: u64,
     ) -> Self {
-        Self {
-            result,
-            has_more,
-            cached,
-            extra,
-            error,
-            code,
-            error_message,
-            error_num,
-        }
+        Self { result, has_more, cached, extra, error, code, error_message, error_num }
     }
 }
 

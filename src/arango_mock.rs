@@ -10,9 +10,7 @@ pub struct ArangoMock {
 impl ArangoMock {
     #[allow(dead_code)] // used in test
     pub fn new(requests_and_responses: HashMap<String, String>) -> Self {
-        Self {
-            requests_and_responses,
-        }
+        Self { requests_and_responses }
     }
 }
 

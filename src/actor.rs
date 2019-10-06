@@ -1,12 +1,12 @@
+use crate::{ArangoConnection, ArangoConnectionInternal, ArangoQuery, ArangoResponse};
 use actix::*;
-use crate::{ArangoConnection, ArangoQuery, ArangoResponse, ArangoConnectionInternal};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::env;
 
 /// This is a sync actor to be able to use reqwest sync client in any actix based project.
 /// Usage:
-/// 
+///
 /// use arangoq::{ArangoActor, ArangoConnection};
 /// use reqwest::Client;
 /// use actix::prelude::*;
@@ -22,7 +22,7 @@ use std::env;
 ///         .data(addr.clone())
 /// });
 /// sys.run();
-/// 
+///
 pub struct ArangoActor {
     pub connection: ArangoConnection,
 }
@@ -41,7 +41,9 @@ impl<T: 'static> Message for DbQuery<T> {
     type Result = Result<ArangoResponse<T>, reqwest::Error>;
 }
 
-impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug> Handler<DbQuery<T>> for ArangoActor {
+impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug> Handler<DbQuery<T>>
+    for ArangoActor
+{
     type Result = Result<ArangoResponse<T>, reqwest::Error>;
 
     fn handle(&mut self, msg: DbQuery<T>, _ctx: &mut SyncContext<Self>) -> Self::Result {
@@ -57,7 +59,7 @@ impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug> Handler<DbQuer
             .json(&query)
             .basic_auth(
                 env::var("ARANGO_USER_NAME").unwrap_or_default(),
-                env::var("ARANGO_PASSWORD").ok()
+                env::var("ARANGO_PASSWORD").ok(),
             )
             .send()
             .and_then(|mut r| {

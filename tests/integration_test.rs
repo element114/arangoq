@@ -1,11 +1,5 @@
-extern crate arangoq;
 use arangoq::*;
-
 use serde::{Deserialize, Serialize};
-use serde_json::value::Value;
-// use std::marker::PhantomData;
-use maplit::*;
-use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, ArangoBuilder, Debug)]
 pub struct TestUser {
@@ -28,7 +22,8 @@ fn test_arango_connection_actix() {
     // let res = Arbiter::spawn(
     //     futures::future::ok(query.exec(&aconn)).block_on()
     // );
-    let res: Result<ArangoResponse<TestUser>, actix_web::Error> = test::block_on(query.exec(&aconn));
+    let res: Result<ArangoResponse<TestUser>, actix_web::Error> =
+        test::block_on(query.exec(&aconn));
     println!("{:#?}", res);
     // sys.run();
 }

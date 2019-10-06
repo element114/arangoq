@@ -21,10 +21,8 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
     let struct_name = &struct_definition.ident;
     let builder_name_precursor = || format!("{}ArangoBuilder", struct_name);
     let builder_name = Ident::new(&builder_name_precursor(), Span::call_site());
-    let builder_factory_name = Ident::new(
-        &format!("{}ArangoBuilderFactory", struct_name),
-        Span::call_site(),
-    );
+    let builder_factory_name =
+        Ident::new(&format!("{}ArangoBuilderFactory", struct_name), Span::call_site());
     let default_limit = quote![serde_json::to_value(&#DEFAULT_LIMIT).unwrap()]; // safe to unwrap
 
     // Struct specific methods for field based filtering
@@ -139,7 +137,7 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
         pub struct #builder_name<Tag: BuilderTag> {
             query_type: Option<QueryType>,
             tag: Tag,
-            bind_vars: BTreeMap<String, Value>,
+            bind_vars: std::collections::BTreeMap<String, serde_json::Value>,
             raw_query: Vec<String>,
         }
 
@@ -148,7 +146,7 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
                 Self {
                     query_type: None,
                     tag: EmptyBuilder,
-                    bind_vars: btreemap![
+                    bind_vars: maplit::btreemap![
                         String::from("@collection") => serde_json::to_value(&collection_name).unwrap()
                     ],
                     raw_query: vec![],

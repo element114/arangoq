@@ -18,9 +18,7 @@ mod tests {
 
     impl TestUser {
         fn new(name: &str) -> Self {
-            Self {
-                name: name.to_owned(),
-            }
+            Self { name: name.to_owned() }
         }
     }
 
@@ -74,12 +72,8 @@ mod tests {
             instrument: String,
         }
 
-        let query = test_collection().update(
-            "Paul",
-            &Instrument {
-                instrument: String::from("bass"),
-            },
-        );
+        let query =
+            test_collection().update("Paul", &Instrument { instrument: String::from("bass") });
         let expected =
             r#"{"query":"UPDATE @key WITH @update IN @@collection","bindVars":{"@collection":"Beatles","key":"Paul","update":{"instrument":"bass"}}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
@@ -112,11 +106,8 @@ mod tests {
         let collection_name = "People";
 
         let query1 = Person::query_builder(collection_name).read().build();
-        let query2 = Person::query_builder(collection_name)
-            .read()
-            .filter()
-            .name_eq(&"John Lennon")
-            .build();
+        let query2 =
+            Person::query_builder(collection_name).read().filter().name_eq(&"John Lennon").build();
         let query3 = Person::query_builder(collection_name)
             .read()
             .filter()
@@ -137,10 +128,7 @@ mod tests {
             .build();
 
         let query5 = Person::query_builder(collection_name)
-            .create(&Person {
-                name: "Douglas Adams",
-                age: 42,
-            })
+            .create(&Person { name: "Douglas Adams", age: 42 })
             .build();
 
         let query6 = Person::query_builder(collection_name).delete().build();
@@ -151,10 +139,7 @@ mod tests {
             .name_eq(&"John Lennon")
             .build();
 
-        let query8 = Person::query_builder(collection_name)
-            .update()
-            .name(&"John Lennon")
-            .build();
+        let query8 = Person::query_builder(collection_name).update().name(&"John Lennon").build();
 
         let query9 = Person::query_builder(collection_name)
             .update()
@@ -167,10 +152,7 @@ mod tests {
             .update()
             .filter()
             .name_eq(&"Paul McCartney")
-            .replace_with(&Person {
-                name: "Douglas Adams",
-                age: 42,
-            })
+            .replace_with(&Person { name: "Douglas Adams", age: 42 })
             .build();
 
         let query11 = Person::query_builder(collection_name)
@@ -228,12 +210,7 @@ mod tests {
 
     fn test_response() -> ArangoResponse<U> {
         ArangoResponse::new(
-            vec![U::new(
-                "13221",
-                "Characters/13221",
-                "_ZEJkt1W---",
-                "John Doe",
-            )],
+            vec![U::new("13221", "Characters/13221", "_ZEJkt1W---", "John Doe")],
             false,
             false,
             ArangoResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654956817626953e-4, 2107, vec![]),
@@ -250,10 +227,7 @@ mod tests {
 
     #[test]
     fn test_arango_response_ser_deser() {
-        assert_eq!(
-            test_response_json(),
-            serde_json::to_string(&test_response()).unwrap()
-        );
+        assert_eq!(test_response_json(), serde_json::to_string(&test_response()).unwrap());
 
         assert_eq!(
             test_response(),
@@ -300,7 +274,8 @@ mod tests {
             r#"{"code":400,"error":true,"errorMessage":"expecting POST /_api/cursor","errorNum":400}"#
         );
         for r in responses {
-            let resp: Result<ArangoResponse<String>, serde_json::error::Error> = serde_json::from_str(r);
+            let resp: Result<ArangoResponse<String>, serde_json::error::Error> =
+                serde_json::from_str(r);
             assert!(resp.is_ok());
         }
     }

@@ -14,10 +14,10 @@ use actix_web::{dev::Body, http::header, Error};
 
 #[cfg(feature = "reqwestasyc")]
 use reqwest::r#async::{Body, Client};
-#[cfg(all(feature = "reqwestactor", not(feature = "reqwestasyc")))]
-use reqwest::{Body, Client};
 #[cfg(not(feature = "actixclient"))]
 use reqwest::Error;
+#[cfg(all(feature = "reqwestactor", not(feature = "reqwestasyc")))]
+use reqwest::{Body, Client};
 
 #[cfg(feature = "actixclient")]
 impl From<ArangoQuery> for Body {
@@ -58,9 +58,12 @@ pub struct ArangoConnectionInternal<T> {
 }
 
 // impl<T: Serialize + DeserializeOwned> ExecuteArangoQuery for ArangoConnectionInternal<T> {
-    // type Output = Result<ArangoResponse<T>, Error>;
+// type Output = Result<ArangoResponse<T>, Error>;
 impl<T: Serialize + DeserializeOwned> ArangoConnectionInternal<T> {
-    pub fn execute_query(&self, query: ArangoQuery) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
+    pub fn execute_query(
+        &self,
+        query: ArangoQuery,
+    ) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
         #[cfg(feature = "actixclient")]
         {
             self.conn
@@ -85,13 +88,13 @@ impl<T: Serialize + DeserializeOwned> ArangoConnectionInternal<T> {
         #[cfg(all(feature = "reqwestactor", not(feature = "reqwestasyc")))]
         {
             futures::future::result(
-            self.conn
-                .client
-                .post(format!("{}/_api/cursor", self.conn.host).as_str())
-                .header("content-type", "application/json")
-                .json(&query)
-                .send()
-                .and_then(|mut r| r.json())
+                self.conn
+                    .client
+                    .post(format!("{}/_api/cursor", self.conn.host).as_str())
+                    .header("content-type", "application/json")
+                    .json(&query)
+                    .send()
+                    .and_then(|mut r| r.json()),
             )
             // if let Ok(res) = res {
             //     if let Ok(j) = res.clone().json() {
@@ -105,10 +108,7 @@ impl<T: Serialize + DeserializeOwned> ArangoConnectionInternal<T> {
 
 impl<T> From<ArangoConnection> for ArangoConnectionInternal<T> {
     fn from(conn: ArangoConnection) -> Self {
-        ArangoConnectionInternal {
-            conn: conn.clone(),
-            phantom: PhantomData::<T>,
-        }
+        ArangoConnectionInternal { conn: conn.clone(), phantom: PhantomData::<T> }
     }
 }
 
@@ -193,10 +193,7 @@ pub struct CollectionMandatory {
 
 impl CollectionMandatory {
     pub fn with_key(_key: &str) -> Self {
-        Self {
-            _key: _key.to_owned(),
-            ..Default::default()
-        }
+        Self { _key: _key.to_owned(), ..Default::default() }
     }
 
     pub fn id(&self) -> &str {

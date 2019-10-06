@@ -1,12 +1,12 @@
+pub mod actor;
 pub mod arango_api;
 pub mod arango_connection;
 pub mod arango_response;
-pub mod actor;
 
+pub use actor::*;
 pub use arango_api::*;
 pub use arango_connection::*;
 pub use arango_response::*;
-pub use actor::*;
 
 mod arango_impl;
 mod arango_mock;

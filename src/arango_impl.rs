@@ -2,9 +2,9 @@ use super::*;
 
 use maplit::*;
 
+use futures::future::Future;
 use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
-use futures::future::Future;
 
 #[cfg(feature = "actixclient")]
 use actix_web::Error;
@@ -14,17 +14,11 @@ use reqwest::Error;
 #[allow(dead_code)]
 impl ArangoQuery {
     pub(crate) fn new(query: &str) -> Self {
-        Self {
-            query: String::from(query),
-            ..Default::default()
-        }
+        Self { query: String::from(query), ..Default::default() }
     }
 
     pub fn with_bind_vars(query: &str, bind_vars: BTreeMap<String, Value>) -> Self {
-        Self {
-            query: String::from(query),
-            bind_vars,
-        }
+        Self { query: String::from(query), bind_vars }
     }
 
     pub fn exec<T: Serialize + DeserializeOwned>(
@@ -38,19 +32,13 @@ impl ArangoQuery {
 
 impl Default for ArangoQuery {
     fn default() -> Self {
-        Self {
-            query: String::default(),
-            bind_vars: BTreeMap::new(),
-        }
+        Self { query: String::default(), bind_vars: BTreeMap::new() }
     }
 }
 
 impl Collection {
     pub fn new(name: &str, collection_type: CollectionType) -> Self {
-        Self {
-            name: String::from(name),
-            collection_type,
-        }
+        Self { name: String::from(name), collection_type }
     }
 }
 
