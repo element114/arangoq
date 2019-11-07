@@ -3,27 +3,29 @@ name = "arangoq"
 version = "0.1.1"
 authors = ["Andras Mocsary <nobody@reedwolf.com>"]
 edition = "2018"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0.97", features = ["derive"] }
-serde_derive = "1.0.97"
-serde_json = "1.0.40"
-actix-web = { version= "1.0.4",  features=["rust-tls"], optional = true }
-awc = { version = "0.2.2", optional = true }
-reqwest = { version = "0.9.19", optional = true }
-futures = "0.1.28"
-maplit = "1.0.1"
-arangoq_derive = { path = "./arangoq_derive" }
 actix = "0.8.3"
+arangoq_derive = { path = "./arangoq_derive" }
+futures = "0.1.0"
+log = "0.4.8"
+maplit = "1.0.2"
+reqwest = { version = "0.9.21" }
+serde = { version = "1.0.102", features = ["derive"] }
+serde_derive = "1.0.102"
+serde_json = "1.0.41"
 
 [features]
 # no features by default
-default = ["reqwestactor"]
-actixclient = ["awc", "actix-web"]
-reqwestasyc = ["reqwest"]
-reqwestactor = ["reqwest"]
+default = []
 
 [dev-dependencies]
 actix = "0.8.3"
+actix-rt = "0.2.5"
+actix-web = { version= "1.0.8" }
+env_logger = "0.7.1"
+mockito = "0.21.0"
+

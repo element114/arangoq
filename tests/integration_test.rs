@@ -1,5 +1,52 @@
+use actix::{Actor, System};
+use actix_rt::spawn;
 use arangoq::*;
+use futures::Future;
+use mockito;
+use mockito::mock;
 use serde::{Deserialize, Serialize};
+
+#[test]
+fn test_async_tooling() {
+    std::env::set_var("RUST_LOG", "debug,hyper=info");
+    let _res = env_logger::try_init();
+    std::env::set_var("ARANGO_USER_NAME", "evt_write");
+    std::env::set_var("ARANGO_PASSWORD", "notarealpw");
+
+    let mock_resp = r#"{"result":[{"_key":"537130","id":8,"name":"NU","parent_id":"organizers/4242"}],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":1,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0012001991271972656,"peakMemoryUsage":8007},"warnings":[]},"error":false,"code":201}"#;
+    let _m = mock("POST", "/")
+        .with_status(200)
+        .with_header("content-type", "application/json")
+        .with_body(mock_resp)
+        .expect(1)
+        .create();
+
+    // start system, it is a required step
+    let _res = System::run(|| {
+        // create new connection
+        let connection = ArangoConnection::new(mockito::server_url(), reqwest::r#async::Client::new());
+        // start new actor
+        let addr = ArangoActorAsync { connection }.start();
+
+        // create query
+        let query = TestUser::query_builder("TestUsers").read().build();
+        let dbq = DbQuery(query, std::marker::PhantomData::<TestUser>);
+
+        // send message and get future for result
+        let res = addr.send(dbq);
+
+        // handle() returns tokio handle
+        spawn(
+            res.map(|res| {
+                println!("RESULT: {:#?}", res);
+                assert_eq!("NU", res.unwrap().result.first().unwrap().name);
+                // stop system and exit
+                System::current().stop();
+            })
+            .map_err(|_| ()),
+        );
+    });
+}
 
 #[derive(Serialize, Deserialize, ArangoBuilder, Debug)]
 pub struct TestUser {
@@ -24,7 +71,7 @@ fn test_arango_connection_actix() {
     // );
     let res: Result<ArangoResponse<TestUser>, actix_web::Error> =
         test::block_on(query.exec(&aconn));
-    println!("{:#?}", res);
+    debug!("{:#?}", res);
     // sys.run();
 }
 

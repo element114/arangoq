@@ -1,15 +1,6 @@
 use super::*;
-
 use maplit::*;
-
-use futures::future::Future;
-use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
-
-#[cfg(feature = "actixclient")]
-use actix_web::Error;
-#[cfg(not(feature = "actixclient"))]
-use reqwest::Error;
 
 #[allow(dead_code)]
 impl ArangoQuery {
@@ -21,13 +12,13 @@ impl ArangoQuery {
         Self { query: String::from(query), bind_vars }
     }
 
-    pub fn exec<T: Serialize + DeserializeOwned>(
-        self,
-        dbconnection: &ArangoConnection,
-    ) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
-        let conn: ArangoConnectionInternal<T> = dbconnection.clone().into();
-        conn.execute_query(self)
-    }
+    // pub fn exec<T: Serialize + DeserializeOwned>(
+    //     self,
+    //     dbconnection: &ArangoConnection,
+    // ) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
+    //     let conn: ArangoConnectionInternal<T> = dbconnection.clone().into();
+    //     conn.execute_query(self)
+    // }
 }
 
 impl Default for ArangoQuery {

@@ -1,16 +1,12 @@
-use crate::{ArangoConnection, ArangoResponse, ArangoQuery};
+use crate::actor::DbQuery;
+use crate::{ArangoConnection, ArangoResponse};
 use actix::*;
+use actix_rt::spawn;
 use futures::future::Future;
 use log::debug;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::env;
-
-pub struct DbQuery<T>(pub ArangoQuery, pub std::marker::PhantomData<T>);
-
-impl<T: 'static> Message for DbQuery<T> {
-    type Result = Result<ArangoResponse<T>, reqwest::Error>;
-}
 
 /// This is an actix async actor using reqwest async client.
 /// Usage:
@@ -43,7 +39,7 @@ impl Actor for ArangoActorAsync {
     }
 }
 
-type ArangoMagicResult<T> = Box<dyn Future<Item = ArangoResponse<T>, Error = reqwest::Error>>;
+type ArangoMagicResult<T> = Box<Future<Item = ArangoResponse<T>, Error = reqwest::Error>>;
 impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug + Send> Handler<DbQuery<T>>
     for ArangoActorAsync
 {
