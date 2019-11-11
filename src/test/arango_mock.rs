@@ -1,4 +1,4 @@
-use super::*;
+use crate::arango_api::{ArangoQuery, ExecuteArangoQuery};
 
 use std::collections::HashMap;
 

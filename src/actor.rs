@@ -1,4 +1,4 @@
-use crate::{ArangoConnection, ArangoResponse, ArangoQuery};
+use crate::{ArangoConnection, ArangoQuery, ArangoResponse};
 use actix::*;
 use futures::future::Future;
 use log::debug;

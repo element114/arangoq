@@ -24,7 +24,8 @@ fn test_async_tooling() {
     // start system, it is a required step
     let _res = System::run(|| {
         // create new connection
-        let connection = ArangoConnection::new(mockito::server_url(), reqwest::r#async::Client::new());
+        let connection =
+            ArangoConnection::new(mockito::server_url(), reqwest::r#async::Client::new());
         // start new actor
         let addr = ArangoActorAsync { connection }.start();
 

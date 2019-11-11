@@ -2,6 +2,7 @@
 #[allow(dead_code)]
 #[allow(unused_variables)]
 mod tests {
+    use crate::test::*;
     use crate::*;
     use std::collections::HashMap;
 
