@@ -73,8 +73,8 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
-    #[derive(Serialize,Default)]
-    struct TestData{
+    #[derive(Serialize, Default)]
+    struct TestData {
         name: String,
     }
 
@@ -85,7 +85,7 @@ mod tests {
         assert_eq!(
             r#"{"result":[],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0,"peakMemoryUsage":0},"warnings":[]},"error":false,"code":0}"#,
             r);
-        
+
         // let t = TestResponse::with_results(vec!(TestData{ name: "John Doe".to_owned()}, TestData{ name: "Teszt Elek".to_owned()}));
         // let r = serde_json::to_string(&t).unwrap();
         // assert_eq!(

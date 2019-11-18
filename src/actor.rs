@@ -24,7 +24,7 @@ impl<T: 'static> Message for DbQuery<T> {
 ///    host: std::sync::Arc::new(format!("{}/_db/{}/_api/cursor", db_conn, db_name)),
 ///    client: std::sync::Arc::new(Client::new()),
 /// };
-/// let addr = SyncArbiter::start(2, move || ArangoActor {connection: connection.clone()});
+/// let addr = ArangoActor {connection: connection.clone()}.start();
 /// HttpServer::new(move || {
 ///     App::new()
 ///         .data(addr.clone())
@@ -79,5 +79,35 @@ impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug + Send> Handler
 
         // .map_err(Error::from)
         // .map_err(|e| e.to_string())
+    }
+}
+
+impl Message for ArangoQuery {
+    type Result = Result<ArangoResponse<serde_json::Value>, reqwest::Error>;
+}
+type ArangoJsonResult =
+    Box<dyn Future<Item = ArangoResponse<serde_json::Value>, Error = reqwest::Error>>;
+/// This variant always returns serde_json::Value
+impl Handler<ArangoQuery> for ArangoActorAsync {
+    type Result = ArangoJsonResult;
+
+    fn handle(&mut self, query: ArangoQuery, _ctx: &mut Context<Self>) -> Self::Result {
+        let dbc = &self.connection;
+        let fut = dbc
+            .client
+            .post(format!("{}", dbc.host).as_str())
+            .header("content-type", "application/json")
+            .json(&query)
+            .basic_auth(
+                env::var("ARANGO_USER_NAME").unwrap_or_default(),
+                env::var("ARANGO_PASSWORD").ok(),
+            )
+            .send()
+            .and_then(|mut r| r.json())
+            .map_err(|err| {
+                debug!("Error during db request: {}", err);
+                err
+            });
+        Box::new(fut)
     }
 }
