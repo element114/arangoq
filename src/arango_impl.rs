@@ -36,7 +36,7 @@ impl Collection {
 impl Insert for Collection {
     fn insert<Elem: Serialize>(&self, elem: &Elem) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
-            "INSERT @value INTO @@collection",
+            "INSERT @value INTO @@collection RETURN NEW",
             btreemap![
                 String::from("@collection") => Value::String(self.name.to_owned()),
                 String::from("value") => serde_json::to_value(elem).unwrap(),
@@ -81,7 +81,7 @@ impl GetByKeys for Collection {
 impl Replace for Collection {
     fn replace<Key: Serialize, Elem: Serialize>(&self, key: Key, elem: Elem) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
-            "REPLACE @key WITH @elem IN @@collection",
+            "REPLACE @key WITH @elem IN @@collection RETURN OLD",
             btreemap![
                 String::from("@collection") => Value::String(self.name.to_owned()),
                 String::from("elem") => serde_json::to_value(&elem).unwrap(),
