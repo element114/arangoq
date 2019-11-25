@@ -81,7 +81,7 @@ impl GetByKeys for Collection {
 impl Replace for Collection {
     fn replace<Key: Serialize, Elem: Serialize>(&self, key: Key, elem: Elem) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
-            "REPLACE @key WITH @elem IN @@collection RETURN OLD",
+            "REPLACE @key WITH @elem IN @@collection RETURN NEW",
             btreemap![
                 String::from("@collection") => Value::String(self.name.to_owned()),
                 String::from("elem") => serde_json::to_value(&elem).unwrap(),
@@ -94,7 +94,7 @@ impl Replace for Collection {
 impl Update for Collection {
     fn update<Key: Serialize, Update: Serialize>(&self, key: Key, update: Update) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
-            "UPDATE @key WITH @update IN @@collection",
+            "UPDATE @key WITH @update IN @@collection RETURN NEW",
             btreemap![
                 String::from("@collection") => Value::String(self.name.to_owned()),
                 String::from("key") => serde_json::to_value(&key).unwrap(),
@@ -107,7 +107,7 @@ impl Update for Collection {
 impl Remove for Collection {
     fn remove<Key: Serialize>(&self, key: Key) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
-            "REMOVE @key IN @@collection",
+            "REMOVE @key IN @@collection RETURN OLD",
             btreemap![
                 String::from("@collection") => Value::String(self.name.to_owned()),
                 String::from("key") => serde_json::to_value(&key).unwrap()

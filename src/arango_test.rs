@@ -26,7 +26,7 @@ mod tests {
     #[test]
     fn test_collection_insert() {
         let query = test_collection().insert(&TestUser::new("Paul McCartney"));
-        let expected = r#"{"query":"INSERT @value INTO @@collection","bindVars":{"@collection":"Beatles","value":{"name":"Paul McCartney"}}}"#;
+        let expected = r#"{"query":"INSERT @value INTO @@collection RETURN NEW","bindVars":{"@collection":"Beatles","value":{"name":"Paul McCartney"}}}"#;
 
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
@@ -62,7 +62,7 @@ mod tests {
     fn test_collection_replace() {
         let query = test_collection().replace("Paul", &TestUser::new("John Lennon"));
         let expected =
-            r#"{"query":"REPLACE @key WITH @elem IN @@collection","bindVars":{"@collection":"Beatles","elem":{"name":"John Lennon"},"key":"Paul"}}"#;
+            r#"{"query":"REPLACE @key WITH @elem IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","elem":{"name":"John Lennon"},"key":"Paul"}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
@@ -76,7 +76,7 @@ mod tests {
         let query =
             test_collection().update("Paul", &Instrument { instrument: String::from("bass") });
         let expected =
-            r#"{"query":"UPDATE @key WITH @update IN @@collection","bindVars":{"@collection":"Beatles","key":"Paul","update":{"instrument":"bass"}}}"#;
+            r#"{"query":"UPDATE @key WITH @update IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","key":"Paul","update":{"instrument":"bass"}}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
@@ -84,7 +84,7 @@ mod tests {
     fn test_collection_remove() {
         let query = test_collection().remove("Paul");
         let expected =
-            r#"{"query":"REMOVE @key IN @@collection","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
+            r#"{"query":"REMOVE @key IN @@collection RETURN OLD","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
@@ -175,7 +175,7 @@ mod tests {
             (query2, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","limit":100}}"#),
             (query3, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 FILTER item.age > @filterVar3 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","filterVar3":42,"limit":100}}"#),
             (query4, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 OR item.name == @filterVar3 AND item.age > @filterVar4 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","filterVar3":"George Harrison","filterVar4":42,"limit":10}}"#),
-            (query5, r#"{"query":"INSERT @elem INTO @@collection ","bindVars":{"@collection":"People","elem":{"age":42,"name":"Douglas Adams"}}}"#),
+            (query5, r#"{"query":"INSERT @elem INTO @@collection RETURN NEW ","bindVars":{"@collection":"People","elem":{"age":42,"name":"Douglas Adams"}}}"#),
             (query6, r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection ","bindVars":{"@collection":"People"}}"#),
             (query7, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 REMOVE item IN @@collection ","bindVars":{"@collection":"People","filterVar1":"John Lennon"}}"#),
             (query8, r#"{"query":"FOR item IN @@collection UPDATE item WITH { name: @withVar1 } IN @@collection ","bindVars":{"@collection":"People","withVar1":"John Lennon"}}"#),

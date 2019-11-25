@@ -33,6 +33,7 @@ lazy_static! {
 /// Create a db called arangoq with user arangoq, and password arangoq
 /// for these tests to work.
 
+#[ignore]
 #[test]
 fn live_setup() {
     // setup logs
@@ -52,6 +53,7 @@ fn live_setup() {
 
 proptest! {
 #![proptest_config(ProptestConfig::with_cases(1))]
+#[ignore]
 #[test]
 fn test_live_queries(test_data: TestData) {
     // fn test_live_queries() {

@@ -283,7 +283,7 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
             pub fn build(self) -> ArangoQuery {
                 let mut new_raw_query = self.raw_query;
                 let end_clause = match self.query_type {
-                    Some(QueryType::Create) => "INTO @@collection",
+                    Some(QueryType::Create) => "INTO @@collection RETURN NEW",
                     Some(QueryType::Read) => "LIMIT @limit RETURN item",
                     Some(QueryType::Update) => "IN @@collection",
                     Some(QueryType::Delete) => "REMOVE item IN @@collection",
