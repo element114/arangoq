@@ -8,6 +8,15 @@ pub struct ArangoQuery {
     pub(crate) bind_vars: BTreeMap<String, Value>,
 }
 
+impl ArangoQuery {
+    pub fn raw(query: String, bind_vars: BTreeMap<String, Value>) -> Self {
+        ArangoQuery {
+            query,
+            bind_vars
+        }
+    }
+}
+
 pub trait ExecuteArangoQuery {
     type Output;
 
