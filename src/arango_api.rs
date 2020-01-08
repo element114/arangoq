@@ -10,10 +10,7 @@ pub struct ArangoQuery {
 
 impl ArangoQuery {
     pub fn raw(query: String, bind_vars: BTreeMap<String, Value>) -> Self {
-        ArangoQuery {
-            query,
-            bind_vars
-        }
+        ArangoQuery { query, bind_vars }
     }
 }
 
@@ -27,15 +24,31 @@ pub trait ExecuteArangoQuery {
 //     fn execute_query<T>(&self, query: ArangoQuery) -> Box<Future<Item = ArangoResponse<T>, Error = Error> + Send>;
 // }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[serde(untagged)]
 pub enum CollectionType {
     Document = 2,
     Edge = 3,
 }
+impl Default for CollectionType {
+    fn default() -> Self {
+        CollectionType::Document
+    }
+}
 
 #[allow(dead_code)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
 pub struct Collection {
-    pub(crate) name: String,
+    #[serde(rename = "type", default)]
     pub(crate) collection_type: CollectionType,
+
+    pub id: String,
+    pub name: String,
+    pub status: u8,
+    #[serde(rename = "isSystem", default)]
+    pub is_system: bool,
+    #[serde(rename = "globallyUniqueId", default)]
+    pub globally_unique_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]

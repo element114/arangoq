@@ -14,7 +14,7 @@ fn test_async_tooling() {
     std::env::set_var("ARANGO_PASSWORD", "notarealpw");
 
     let mock_resp = r#"{"result":[{"_key":"537130","id":8,"name":"NU","parent_id":"organizers/4242"}],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":1,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0012001991271972656,"peakMemoryUsage":8007},"warnings":[]},"error":false,"code":201}"#;
-    let _m = mock("POST", "/")
+    let _m = mock("POST", "/_db/evt_test/_api/cursor")
         .with_status(200)
         .with_header("content-type", "application/json")
         .with_body(mock_resp)
@@ -23,9 +23,10 @@ fn test_async_tooling() {
 
     // start system, it is a required step
     let _res = System::run(|| {
+        let db_name = "evt_test".to_owned();
         // create new connection
         let connection =
-            ArangoConnection::new(mockito::server_url(), reqwest::r#async::Client::new());
+            ArangoConnection::new(mockito::server_url(), db_name, reqwest::r#async::Client::new());
         // start new actor
         let addr = ArangoActorAsync { connection }.start();
 
@@ -57,7 +58,7 @@ fn test_json_async_tooling() {
     std::env::set_var("ARANGO_PASSWORD", "notarealpw");
 
     let mock_resp = r#"{"result":[{"_key":"537130","id":8,"name":"NU","parent_id":"organizers/4242"}],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":1,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0012001991271972656,"peakMemoryUsage":8007},"warnings":[]},"error":false,"code":201}"#;
-    let _m = mock("POST", "/")
+    let _m = mock("POST", "/_db/evt_test/_api/cursor")
         .with_status(200)
         .with_header("content-type", "application/json")
         .with_body(mock_resp)
@@ -66,9 +67,10 @@ fn test_json_async_tooling() {
 
     // start system, it is a required step
     let _res = System::run(|| {
+        let db_name = "evt_test".to_owned();
         // create new connection
         let connection =
-            ArangoConnection::new(mockito::server_url(), reqwest::r#async::Client::new());
+            ArangoConnection::new(mockito::server_url(), db_name, reqwest::r#async::Client::new());
         // start new actor
         let addr = ArangoActorAsync { connection }.start();
 

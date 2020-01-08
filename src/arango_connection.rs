@@ -16,17 +16,30 @@ impl From<ArangoQuery> for Body {
 /// Check https://www.arangodb.com/docs/stable/http/database.html
 #[derive(Clone)]
 pub struct ArangoConnection {
-    pub host: Arc<String>,
+    pub host: String,
+    pub database: String,
     pub client: Arc<Client>,
     // pub phantom: PhantomData<T>,
+    pub context: Context,
 }
 impl ArangoConnection {
-    pub fn new(host: String, client: Client) -> Self {
+    pub fn new(host: String, database: String, client: Client) -> Self {
+        Self::with_context(host, database, client, Context::default())
+    }
+    pub fn with_context(host: String, database: String, client: Client, context: Context) -> Self {
         ArangoConnection {
-            host: Arc::new(host),
+            host,
+            database,
             client: Arc::new(client),
             // phantom: PhantomData::<T>,
+            context,
         }
+    }
+    pub fn cursor(&self) -> String {
+        format!("{}/_db/{}/_api/cursor", self.host, self.database)
+    }
+    pub fn collection(&self) -> String {
+        format!("{}/_db/{}/_api/collection", self.host, self.database)
     }
 }
 
@@ -71,6 +84,7 @@ impl CollectionMandatory {
     }
 }
 
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct Context {
     pub app_prefix: &'static str,
 }

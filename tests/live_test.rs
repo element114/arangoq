@@ -20,9 +20,12 @@ lazy_static! {
         //set db password
         std::env::set_var("ARANGO_USER_NAME", "arangoq");
         std::env::set_var("ARANGO_PASSWORD", "arangoq");
+        let db_host = "http://localhost:8529/".to_owned();
+        let db_name = "evt_test".to_owned();
         // create new connection to local db
         ArangoConnection::new(
-            "http://localhost:8529/_db/arangoq/_api/cursor".to_owned(),
+            db_host,
+            db_name,
             reqwest::r#async::Client::new(),
         )
     };

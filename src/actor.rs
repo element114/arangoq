@@ -58,7 +58,7 @@ impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug + Send> Handler
         // let conn: ArangoConnectionInternal<T> = dbc.clone().into();
         let fut = dbc
             .client
-            .post(format!("{}", dbc.host).as_str())
+            .post(dbc.cursor().as_str())
             .header("content-type", "application/json")
             .json(&query)
             .basic_auth(
@@ -95,7 +95,7 @@ impl Handler<ArangoQuery> for ArangoActorAsync {
         let dbc = &self.connection;
         let fut = dbc
             .client
-            .post(format!("{}", dbc.host).as_str())
+            .post(dbc.cursor().as_str())
             .header("content-type", "application/json")
             .json(&query)
             .basic_auth(
