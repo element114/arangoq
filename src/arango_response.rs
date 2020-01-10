@@ -1,4 +1,6 @@
 use super::*;
+use std::error::Error;
+use std::fmt;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ArangoResponse<T> {
@@ -11,15 +13,13 @@ pub struct ArangoResponse<T> {
     pub cached: bool,
     #[serde(default)]
     pub extra: ArangoResponseExtra,
-    #[serde(default)]
-    pub error: bool,
+    #[serde(rename = "error", default)]
+    pub is_error: bool,
     #[serde(default)]
     pub code: u16,
 
-    #[serde(rename = "errorMessage", skip_serializing_if = "String::is_empty", default)]
-    pub error_message: String,
-    #[serde(rename = "errorNum", skip_serializing, default)]
-    pub error_num: u64,
+    #[serde(flatten)]
+    pub error: ArangoError,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -29,12 +29,11 @@ impl<T> ArangoResponse<T> {
         has_more: bool,
         cached: bool,
         extra: ArangoResponseExtra,
-        error: bool,
+        is_error: bool,
         code: u16,
-        error_message: String,
-        error_num: u64,
+        error: ArangoError,
     ) -> Self {
-        Self { result, has_more, cached, extra, error, code, error_message, error_num }
+        Self { result, has_more, cached, extra, is_error, code, error }
     }
 }
 
@@ -99,4 +98,31 @@ pub struct ArangoStats {
 
     #[serde(rename = "peakMemoryUsage", default)]
     pub peak_memory_usage: usize,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct ArangoError {
+    #[serde(rename = "errorMessage", skip_serializing_if = "String::is_empty", default)]
+    pub error_message: String,
+    #[serde(rename = "errorNum", default)]
+    pub error_num: u64,
+}
+impl fmt::Display for ArangoError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.error_num, self.error_message)
+    }
+}
+impl Error for ArangoError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        None
+    }
+}
+
+impl From<reqwest::Error> for ArangoError {
+    fn from(error: reqwest::Error) -> Self {
+        ArangoError {
+            error_message: error.to_string(),
+            error_num: error.status().unwrap_or_default().as_u16() as u64,
+        }
+    }
 }

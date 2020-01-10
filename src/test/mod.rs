@@ -60,10 +60,10 @@ impl<T: Serialize> From<crate::arango_response::ArangoResponse<T>> for TestRespo
             has_more: ar.has_more,
             cached: ar.cached,
             extra: ar.extra,
-            error: ar.error,
+            error: ar.is_error,
             code: ar.code,
-            error_message: ar.error_message,
-            error_num: ar.error_num,
+            error_message: ar.error.error_message,
+            error_num: ar.error.error_num,
         }
     }
 }

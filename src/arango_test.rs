@@ -217,8 +217,10 @@ mod tests {
             ArangoResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654956817626953e-4, 2107, vec![]),
             false,
             201,
-            String::new(),
-            0,
+            ArangoError{
+                error_message: String::new(),
+                error_num: 0,
+            },
         )
     }
 

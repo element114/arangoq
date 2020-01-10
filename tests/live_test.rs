@@ -75,7 +75,7 @@ fn test_live_queries(test_data: TestData) {
         spawn(
             res.map(|res| {
                 let ar = res.unwrap();
-                assert!(!ar.error);
+                assert!(!ar.is_error);
                 let inserted_data = ar.result.first().unwrap();
                 debug!("{:?}", inserted_data);
                 assert!(!inserted_data._key.is_empty());
@@ -95,7 +95,7 @@ fn test_live_queries(test_data: TestData) {
         spawn(
             res.map(|res| {
                 let ar = res.unwrap();
-                assert!(!ar.error);
+                assert!(!ar.is_error);
                 let inserted_data = ar.result.first().unwrap();
                 debug!("{:?}", inserted_data);
                 assert!(!inserted_data._key.is_empty());
