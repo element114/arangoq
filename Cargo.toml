@@ -26,9 +26,9 @@ default = []
 
 [dev-dependencies]
 actix-rt = "1.0"
-actix-web = { version= "1.0.8" }
+actix-web = "2.0"
 env_logger = "0.7.1"
-mockito = "0.21.0"
+mockito = "0.22"
 proptest = "0.9.4"
 proptest-derive = "0.1.2"
 lazy_static = "1.4.0"
