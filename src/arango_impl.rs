@@ -29,7 +29,14 @@ impl Default for ArangoQuery {
 
 impl Collection {
     pub fn new(name: &str, collection_type: CollectionType) -> Self {
-        Self { id: String::new(), status: 0, is_system: false, globally_unique_id: String::from(name),  name: String::from(name), collection_type }
+        Self {
+            id: String::new(),
+            status: 0,
+            is_system: false,
+            globally_unique_id: String::from(name),
+            name: String::from(name),
+            collection_type,
+        }
     }
 }
 

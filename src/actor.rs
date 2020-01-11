@@ -1,6 +1,6 @@
 use crate::{ArangoConnection, ArangoQuery, ArangoResponse};
-use actix::*;
-use futures::future::Future;
+use actix::prelude::*;
+use futures::TryFutureExt;
 use log::debug;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -43,19 +43,14 @@ impl Actor for ArangoActorAsync {
     }
 }
 
-type ArangoMagicResult<T> = Box<dyn Future<Item = ArangoResponse<T>, Error = reqwest::Error>>;
 impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug + Send> Handler<DbQuery<T>>
     for ArangoActorAsync
 {
-    // type Result = Result<ArangoResponse<T>, reqwest::Error>;
-    type Result = ArangoMagicResult<T>;
+    type Result = ResponseFuture<Result<ArangoResponse<T>, reqwest::Error>>;
 
     fn handle(&mut self, msg: DbQuery<T>, _ctx: &mut Context<Self>) -> Self::Result {
         let query = msg.0;
         let dbc = &self.connection;
-        // query.exec(&dbc)
-        // .map_err(|_| "Error occured during db request".to_owned())
-        // let conn: ArangoConnectionInternal<T> = dbc.clone().into();
         let fut = dbc
             .client
             .post(dbc.cursor().as_str())
@@ -66,48 +61,40 @@ impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug + Send> Handler
                 env::var("ARANGO_PASSWORD").ok(),
             )
             .send()
-            .and_then(|mut r| {
-                // let res: serde_json::Value = r.json().unwrap();
-                // debug!("{}", res);
+            .and_then(|r| {
                 r.json()
             })
             .map_err(|err| {
                 debug!("Error during db request: {}", err);
                 err
             });
-        Box::new(fut)
-
-        // .map_err(Error::from)
-        // .map_err(|e| e.to_string())
+        Box::pin(fut)
     }
 }
 
 impl Message for ArangoQuery {
     type Result = Result<ArangoResponse<serde_json::Value>, reqwest::Error>;
 }
-type ArangoJsonResult =
-    Box<dyn Future<Item = ArangoResponse<serde_json::Value>, Error = reqwest::Error>>;
-/// This variant always returns serde_json::Value
 impl Handler<ArangoQuery> for ArangoActorAsync {
-    type Result = ArangoJsonResult;
+    type Result = ResponseFuture<Result<ArangoResponse<serde_json::Value>, reqwest::Error>>;
 
     fn handle(&mut self, query: ArangoQuery, _ctx: &mut Context<Self>) -> Self::Result {
         let dbc = &self.connection;
-        let fut = dbc
-            .client
-            .post(dbc.cursor().as_str())
-            .header("content-type", "application/json")
-            .json(&query)
-            .basic_auth(
-                env::var("ARANGO_USER_NAME").unwrap_or_default(),
-                env::var("ARANGO_PASSWORD").ok(),
-            )
-            .send()
-            .and_then(|mut r| r.json())
-            .map_err(|err| {
-                debug!("Error during db request: {}", err);
-                err
-            });
-        Box::new(fut)
+        Box::pin(
+                dbc.client
+                .post(dbc.cursor().as_str())
+                .header("content-type", "application/json")
+                .json(&query)
+                .basic_auth(
+                    env::var("ARANGO_USER_NAME").unwrap_or_default(),
+                    env::var("ARANGO_PASSWORD").ok(),
+                )
+                .send()
+                .and_then(|r| r.json())
+                .map_err(|err| {
+                    debug!("Error during db request: {}", err);
+                    err
+                })
+        )
     }
 }

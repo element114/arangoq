@@ -1,10 +1,10 @@
 use actix::{Actor, System};
 use actix_rt::spawn;
 use arangoq::*;
-use futures::Future;
 use mockito;
 use mockito::mock;
 use serde::{Deserialize, Serialize};
+use futures::future::FutureExt;
 
 #[test]
 fn test_async_tooling() {
@@ -26,7 +26,7 @@ fn test_async_tooling() {
         let db_name = "evt_test".to_owned();
         // create new connection
         let connection =
-            ArangoConnection::new(mockito::server_url(), db_name, reqwest::r#async::Client::new());
+            ArangoConnection::new(mockito::server_url(), db_name, reqwest::Client::new());
         // start new actor
         let addr = ArangoActorAsync { connection }.start();
 
@@ -41,11 +41,10 @@ fn test_async_tooling() {
         spawn(
             res.map(|res| {
                 println!("RESULT: {:#?}", res);
-                assert_eq!("NU", res.unwrap().result.first().unwrap().name);
+                assert_eq!("NU", res.unwrap().unwrap().result.first().unwrap().name);
                 // stop system and exit
                 System::current().stop();
-            })
-            .map_err(|_| ()),
+            }),
         );
     });
 }
@@ -70,7 +69,7 @@ fn test_json_async_tooling() {
         let db_name = "evt_test".to_owned();
         // create new connection
         let connection =
-            ArangoConnection::new(mockito::server_url(), db_name, reqwest::r#async::Client::new());
+            ArangoConnection::new(mockito::server_url(), db_name, reqwest::Client::new());
         // start new actor
         let addr = ArangoActorAsync { connection }.start();
 
@@ -84,11 +83,10 @@ fn test_json_async_tooling() {
         spawn(
             res.map(|res| {
                 println!("RESULT: {:#?}", res);
-                assert_eq!("NU", res.unwrap().result.first().unwrap()["name"]);
+                assert_eq!("NU", res.unwrap().unwrap().result.first().unwrap()["name"]);
                 // stop system and exit
                 System::current().stop();
-            })
-            .map_err(|_| ()),
+            }),
         );
     });
 }

@@ -1,5 +1,6 @@
-use crate::arango_api::{ Collection, CollectionType };
-use crate::arango_connection::{ArangoConnection};
+use crate::arango_api::{Collection, CollectionType};
+use crate::arango_connection::ArangoConnection;
+use futures::executor::block_on;
 
 pub struct Database {
     pub name: String,
@@ -27,6 +28,7 @@ impl Database {
             )
             .json(&data)
             .send();
+        let res = block_on(res);
         log::debug!("{:#?}", res);
     }
 
@@ -34,21 +36,25 @@ impl Database {
         let coll_url = self.connection.collection();
 
         let client = reqwest::Client::new();
-        let res = client
-            .get(coll_url.as_str())
-            .header("accept", "application/json")
-            .header("content-type", "application/json")
-            .basic_auth(
-                std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
-                std::env::var("ARANGO_PASSWORD").ok(),
-            )
-            .send();
-        if let Ok(mut resp) = res {
-            let data: serde_json::Value = resp.json().unwrap_or_default();
-            let resutls: Vec<Collection> = serde_json::from_value(data["result"].clone()).unwrap_or_default();
-            return resutls;
-        }
-        return vec!();
-        // log::debug!("{:#?}", res);
+        let fut = async {
+            let res = client
+                .get(coll_url.as_str())
+                .header("accept", "application/json")
+                .header("content-type", "application/json")
+                .basic_auth(
+                    std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
+                    std::env::var("ARANGO_PASSWORD").ok(),
+                )
+                .send()
+                .await;
+            if let Ok(resp) = res {
+                let data: serde_json::Value = resp.json().await.unwrap_or_default();
+                let resutls: Vec<Collection> =
+                    serde_json::from_value(data["result"].clone()).unwrap_or_default();
+                return resutls;
+            }
+            return vec![];
+        };
+        block_on(fut)
     }
 }

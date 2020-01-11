@@ -35,8 +35,7 @@ mod tests {
     fn test_collection_get_all() {
         let query = test_collection().get_all();
 
-        let expected =
-            r#"{"query":"FOR item in @@collection RETURN item","bindVars":{"@collection":"Beatles"}}"#;
+        let expected = r#"{"query":"FOR item in @@collection RETURN item","bindVars":{"@collection":"Beatles"}}"#;
 
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
@@ -44,8 +43,7 @@ mod tests {
     #[test]
     fn test_collection_get_by_key() {
         let query = test_collection().get_by_key("Paul");
-        let expected =
-            r#"{"query":"RETURN DOCUMENT(@@collection, @key)","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
+        let expected = r#"{"query":"RETURN DOCUMENT(@@collection, @key)","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
 
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
@@ -53,16 +51,14 @@ mod tests {
     #[test]
     fn test_collection_get_by_keys() {
         let query = test_collection().get_by_keys(&["Paul", "John", "Ringo", "George"]);
-        let expected =
-            r#"{"query":"RETURN DOCUMENT(@@collection, @keys)","bindVars":{"@collection":"Beatles","keys":["Paul","John","Ringo","George"]}}"#;
+        let expected = r#"{"query":"RETURN DOCUMENT(@@collection, @keys)","bindVars":{"@collection":"Beatles","keys":["Paul","John","Ringo","George"]}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
     #[test]
     fn test_collection_replace() {
         let query = test_collection().replace("Paul", &TestUser::new("John Lennon"));
-        let expected =
-            r#"{"query":"REPLACE @key WITH @elem IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","elem":{"name":"John Lennon"},"key":"Paul"}}"#;
+        let expected = r#"{"query":"REPLACE @key WITH @elem IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","elem":{"name":"John Lennon"},"key":"Paul"}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
@@ -75,24 +71,21 @@ mod tests {
 
         let query =
             test_collection().update("Paul", &Instrument { instrument: String::from("bass") });
-        let expected =
-            r#"{"query":"UPDATE @key WITH @update IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","key":"Paul","update":{"instrument":"bass"}}}"#;
+        let expected = r#"{"query":"UPDATE @key WITH @update IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","key":"Paul","update":{"instrument":"bass"}}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
     #[test]
     fn test_collection_remove() {
         let query = test_collection().remove("Paul");
-        let expected =
-            r#"{"query":"REMOVE @key IN @@collection RETURN OLD","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
+        let expected = r#"{"query":"REMOVE @key IN @@collection RETURN OLD","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
     #[test]
     fn test_collection_truncate() {
         let query = test_collection().truncate();
-        let expected =
-            r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection","bindVars":{"@collection":"Beatles"}}"#;
+        let expected = r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection","bindVars":{"@collection":"Beatles"}}"#;
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
@@ -171,18 +164,54 @@ mod tests {
             .build();
 
         let values = vec![
-            (query1, r#"{"query":"FOR item IN @@collection LIMIT @limit RETURN item ","bindVars":{"@collection":"People","limit":100}}"#),
-            (query2, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","limit":100}}"#),
-            (query3, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 FILTER item.age > @filterVar3 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","filterVar3":42,"limit":100}}"#),
-            (query4, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 OR item.name == @filterVar3 AND item.age > @filterVar4 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","filterVar3":"George Harrison","filterVar4":42,"limit":10}}"#),
-            (query5, r#"{"query":"INSERT @elem INTO @@collection RETURN NEW ","bindVars":{"@collection":"People","elem":{"age":42,"name":"Douglas Adams"}}}"#),
-            (query6, r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection ","bindVars":{"@collection":"People"}}"#),
-            (query7, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 REMOVE item IN @@collection ","bindVars":{"@collection":"People","filterVar1":"John Lennon"}}"#),
-            (query8, r#"{"query":"FOR item IN @@collection UPDATE item WITH { name: @withVar1 } IN @@collection ","bindVars":{"@collection":"People","withVar1":"John Lennon"}}"#),
-            (query9, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH { age: @withVar2 } IN @@collection ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":66}}"#),
-            (query10, r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH @withVar2 IN @@collection ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":{"age":42,"name":"Douglas Adams"}}}"#),
-            (query11, r#"{"query":"FOR item IN @@collection FILTER item.name IN @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":["John","Paul","Ringo","George"],"limit":10}}"#),
-            (query12, r#"{"query":"FOR item IN @@collection FILTER item.age NOT IN @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":[41,42,43,44,45],"limit":10}}"#),
+            (
+                query1,
+                r#"{"query":"FOR item IN @@collection LIMIT @limit RETURN item ","bindVars":{"@collection":"People","limit":100}}"#,
+            ),
+            (
+                query2,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","limit":100}}"#,
+            ),
+            (
+                query3,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 FILTER item.age > @filterVar3 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","filterVar3":42,"limit":100}}"#,
+            ),
+            (
+                query4,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar2 OR item.name == @filterVar3 AND item.age > @filterVar4 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":"John Lennon","filterVar3":"George Harrison","filterVar4":42,"limit":10}}"#,
+            ),
+            (
+                query5,
+                r#"{"query":"INSERT @elem INTO @@collection RETURN NEW ","bindVars":{"@collection":"People","elem":{"age":42,"name":"Douglas Adams"}}}"#,
+            ),
+            (
+                query6,
+                r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection ","bindVars":{"@collection":"People"}}"#,
+            ),
+            (
+                query7,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 REMOVE item IN @@collection ","bindVars":{"@collection":"People","filterVar1":"John Lennon"}}"#,
+            ),
+            (
+                query8,
+                r#"{"query":"FOR item IN @@collection UPDATE item WITH { name: @withVar1 } IN @@collection ","bindVars":{"@collection":"People","withVar1":"John Lennon"}}"#,
+            ),
+            (
+                query9,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH { age: @withVar2 } IN @@collection ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":66}}"#,
+            ),
+            (
+                query10,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH @withVar2 IN @@collection ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":{"age":42,"name":"Douglas Adams"}}}"#,
+            ),
+            (
+                query11,
+                r#"{"query":"FOR item IN @@collection FILTER item.name IN @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":["John","Paul","Ringo","George"],"limit":10}}"#,
+            ),
+            (
+                query12,
+                r#"{"query":"FOR item IN @@collection FILTER item.age NOT IN @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":[41,42,43,44,45],"limit":10}}"#,
+            ),
         ];
 
         for (query, expected) in values.into_iter() {
@@ -271,9 +300,9 @@ mod tests {
     /// a test for "missing field `hasMore` at line 1 column 85"
     #[test]
     fn test_arangoresponse() {
-        let responses = vec!(
-            r#"{"code":400,"error":true,"errorMessage":"expecting POST /_api/cursor","errorNum":400}"#
-        );
+        let responses = vec![
+            r#"{"code":400,"error":true,"errorMessage":"expecting POST /_api/cursor","errorNum":400}"#,
+        ];
         for r in responses {
             let resp: Result<ArangoResponse<String>, serde_json::error::Error> =
                 serde_json::from_str(r);
@@ -304,8 +333,7 @@ mod tests {
             r#"{"_from":"users/1234","_to":"orders/5678"}"#,
             serde_json::to_string(&e).unwrap()
         );
-        let edge_json =
-            r#"{"_from":"users/1234","_to":"orders/5678","_key": "128958","_id":"api_has_order/128958","_rev":"_ZSoR-Le---"}"#;
+        let edge_json = r#"{"_from":"users/1234","_to":"orders/5678","_key": "128958","_id":"api_has_order/128958","_rev":"_ZSoR-Le---"}"#;
         assert_eq!(
             Edge {
                 _from: String::from("users/1234"),

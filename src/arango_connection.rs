@@ -4,7 +4,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use reqwest::r#async::{Body, Client};
+use reqwest::{Body, Client};
 
 impl From<ArangoQuery> for Body {
     fn from(item: ArangoQuery) -> Self {
@@ -16,11 +16,11 @@ impl From<ArangoQuery> for Body {
 /// Check https://www.arangodb.com/docs/stable/http/database.html
 #[derive(Clone)]
 pub struct ArangoConnection {
-    pub host: String,
-    pub database: String,
+    pub host: Arc<String>,
+    pub database: Arc<String>,
     pub client: Arc<Client>,
     // pub phantom: PhantomData<T>,
-    pub context: Context,
+    pub context: Arc<Context>,
 }
 impl ArangoConnection {
     pub fn new(host: String, database: String, client: Client) -> Self {
@@ -28,11 +28,11 @@ impl ArangoConnection {
     }
     pub fn with_context(host: String, database: String, client: Client, context: Context) -> Self {
         ArangoConnection {
-            host,
-            database,
+            host: Arc::new(host),
+            database: Arc::new(database),
             client: Arc::new(client),
             // phantom: PhantomData::<T>,
-            context,
+            context: Arc::new(context),
         }
     }
     pub fn cursor(&self) -> String {

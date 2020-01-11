@@ -8,12 +8,14 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix = "0.8"
+actix = "0.9"
+# actix = { path = "./actix" }
 arangoq_derive = { path = "./arangoq_derive" }
-futures = "0.1"
+futures = "0.3"
 log = "0.4"
 maplit = "1.0"
-reqwest = { version = "0.9" }
+reqwest = { version = "0.10", features = ["json"] }
+# reqwest = { version = "0.9" }
 serde = { version = "1.0", features = ["derive"] }
 serde_derive = "1.0"
 serde_json = "1.0"
@@ -23,8 +25,7 @@ serde_json = "1.0"
 default = []
 
 [dev-dependencies]
-actix = "0.8.3"
-actix-rt = "0.2.5"
+actix-rt = "1.0"
 actix-web = { version= "1.0.8" }
 env_logger = "0.7.1"
 mockito = "0.21.0"

@@ -1,17 +1,14 @@
 use actix::{Actor, System};
 use actix_rt::spawn;
 use arangoq::*;
-use arangoq::*;
-use futures::Future;
+use futures::executor::block_on;
+use futures::future::FutureExt;
 use lazy_static::*;
 use log::debug;
-use mockito;
-use mockito::mock;
 use proptest::prelude::*;
 use proptest_derive::Arbitrary;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::collections::HashMap;
 
 lazy_static! {
     static ref DATABASE: ArangoConnection = {
@@ -26,7 +23,7 @@ lazy_static! {
         ArangoConnection::new(
             db_host,
             db_name,
-            reqwest::r#async::Client::new(),
+            reqwest::Client::new(),
         )
     };
 }
@@ -77,15 +74,14 @@ fn test_live_queries(test_data: TestData) {
         // handle() returns tokio handle
         spawn(
             res.map(|res| {
-                let ar = res.unwrap();
+                let ar = res.unwrap().unwrap();
                 assert!(!ar.error);
                 let inserted_data = ar.result.first().unwrap();
                 debug!("{:?}", inserted_data);
                 assert!(!inserted_data._key.is_empty());
                 // Last one alive, lock the door!
                 // System::current().stop();
-            })
-            .map_err(|_| ()),
+            }),
         );
 
         // create a replace query
@@ -97,14 +93,13 @@ fn test_live_queries(test_data: TestData) {
         // handle() returns tokio handle
         spawn(
             res.map(|res| {
-                let ar = res.unwrap();
+                let ar = res.unwrap().unwrap();
                 assert!(!ar.error);
                 let inserted_data = ar.result.first().unwrap();
                 debug!("{:?}", inserted_data);
                 assert!(!inserted_data._key.is_empty());
                 System::current().stop();
-            })
-            .map_err(|_| ()),
+            }),
         );
     });
 }
@@ -151,7 +146,7 @@ fn create_collection(local_name: &str, collection_type: arangoq::CollectionType)
     });
     debug!("{}", data.to_string());
     let client = reqwest::Client::new();
-    let res = client
+    let res = block_on(client
         .post(coll_url)
         .header("accept", "application/json")
         .header("content-type", "application/json")
@@ -160,6 +155,6 @@ fn create_collection(local_name: &str, collection_type: arangoq::CollectionType)
             std::env::var("ARANGO_PASSWORD").ok(),
         )
         .json(&data)
-        .send();
+        .send());
     debug!("{:#?}", res);
 }
