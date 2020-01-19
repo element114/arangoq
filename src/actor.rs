@@ -1,10 +1,8 @@
 use crate::{ArangoConnection, ArangoQuery, ArangoResponse};
 use actix::prelude::*;
-use futures::TryFutureExt;
 use log::debug;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::env;
 
 pub struct DbQuery<T>(pub ArangoQuery, pub std::marker::PhantomData<T>);
 
@@ -51,24 +49,7 @@ impl<T: 'static + Serialize + DeserializeOwned + std::fmt::Debug + Send> Handler
     fn handle(&mut self, msg: DbQuery<T>, _ctx: &mut Context<Self>) -> Self::Result {
         let query = msg.0;
         let dbc = &self.connection;
-        let fut = dbc
-            .client
-            .post(dbc.cursor().as_str())
-            .header("content-type", "application/json")
-            .json(&query)
-            .basic_auth(
-                env::var("ARANGO_USER_NAME").unwrap_or_default(),
-                env::var("ARANGO_PASSWORD").ok(),
-            )
-            .send()
-            .and_then(|r| {
-                r.json()
-            })
-            .map_err(|err| {
-                debug!("Error during db request: {}", err);
-                err
-            });
-        Box::pin(fut)
+        Box::pin(query.try_exec::<T>(dbc))
     }
 }
 
@@ -80,21 +61,6 @@ impl Handler<ArangoQuery> for ArangoActorAsync {
 
     fn handle(&mut self, query: ArangoQuery, _ctx: &mut Context<Self>) -> Self::Result {
         let dbc = &self.connection;
-        Box::pin(
-                dbc.client
-                .post(dbc.cursor().as_str())
-                .header("content-type", "application/json")
-                .json(&query)
-                .basic_auth(
-                    env::var("ARANGO_USER_NAME").unwrap_or_default(),
-                    env::var("ARANGO_PASSWORD").ok(),
-                )
-                .send()
-                .and_then(|r| r.json())
-                .map_err(|err| {
-                    debug!("Error during db request: {}", err);
-                    err
-                })
-        )
+        Box::pin(query.try_exec::<serde_json::Value>(dbc))
     }
 }

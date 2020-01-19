@@ -1,10 +1,10 @@
 use actix::{Actor, System};
 use actix_rt::spawn;
 use arangoq::*;
+use futures::future::FutureExt;
 use mockito;
 use mockito::mock;
 use serde::{Deserialize, Serialize};
-use futures::future::FutureExt;
 
 #[test]
 fn test_async_tooling() {
@@ -38,14 +38,12 @@ fn test_async_tooling() {
         let res = addr.send(dbq);
 
         // handle() returns tokio handle
-        spawn(
-            res.map(|res| {
-                println!("RESULT: {:#?}", res);
-                assert_eq!("NU", res.unwrap().unwrap().result.first().unwrap().name);
-                // stop system and exit
-                System::current().stop();
-            }),
-        );
+        spawn(res.map(|res| {
+            println!("RESULT: {:#?}", res);
+            assert_eq!("NU", res.unwrap().unwrap().result.first().unwrap().name);
+            // stop system and exit
+            System::current().stop();
+        }));
     });
 }
 
@@ -80,14 +78,12 @@ fn test_json_async_tooling() {
         let res = addr.send(query);
 
         // handle() returns tokio handle
-        spawn(
-            res.map(|res| {
-                println!("RESULT: {:#?}", res);
-                assert_eq!("NU", res.unwrap().unwrap().result.first().unwrap()["name"]);
-                // stop system and exit
-                System::current().stop();
-            }),
-        );
+        spawn(res.map(|res| {
+            println!("RESULT: {:#?}", res);
+            assert_eq!("NU", res.unwrap().unwrap().result.first().unwrap()["name"]);
+            // stop system and exit
+            System::current().stop();
+        }));
     });
 }
 

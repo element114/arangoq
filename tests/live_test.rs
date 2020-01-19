@@ -146,15 +146,17 @@ fn create_collection(local_name: &str, collection_type: arangoq::CollectionType)
     });
     debug!("{}", data.to_string());
     let client = reqwest::Client::new();
-    let res = block_on(client
-        .post(coll_url)
-        .header("accept", "application/json")
-        .header("content-type", "application/json")
-        .basic_auth(
-            std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
-            std::env::var("ARANGO_PASSWORD").ok(),
-        )
-        .json(&data)
-        .send());
+    let res = block_on(
+        client
+            .post(coll_url)
+            .header("accept", "application/json")
+            .header("content-type", "application/json")
+            .basic_auth(
+                std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
+                std::env::var("ARANGO_PASSWORD").ok(),
+            )
+            .json(&data)
+            .send(),
+    );
     debug!("{:#?}", res);
 }

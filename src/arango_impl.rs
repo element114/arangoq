@@ -1,5 +1,8 @@
 use super::*;
+use core::future::Future;
+use futures::future::TryFutureExt;
 use maplit::*;
+use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
 
 #[allow(dead_code)]
@@ -12,13 +15,29 @@ impl ArangoQuery {
         Self { query: String::from(query), bind_vars }
     }
 
-    // pub fn exec<T: Serialize + DeserializeOwned>(
-    //     self,
-    //     dbconnection: &ArangoConnection,
-    // ) -> impl Future<Item = ArangoResponse<T>, Error = Error> {
-    //     let conn: ArangoConnectionInternal<T> = dbconnection.clone().into();
-    //     conn.execute_query(self)
-    // }
+    /// Executes this query using the provided ArangoConnection.
+    /// Returns ArangoResponse or reqwest::Error
+    /// Note: reqwest::Error is temporarily exposed and may change in the future.
+    pub fn try_exec<T: Serialize + DeserializeOwned>(
+        &self,
+        dbc: &ArangoConnection,
+    ) -> impl Future<Output = Result<ArangoResponse<T>, reqwest::Error>> {
+        dbc.client
+            .post(dbc.cursor().as_str())
+            .header("content-type", "application/json")
+            .json(self)
+            .basic_auth(
+                // TODO add this to ArangoConnection as well
+                std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
+                std::env::var("ARANGO_PASSWORD").ok(),
+            )
+            .send()
+            .and_then(|r| r.json())
+            .map_err(|err| {
+                log::debug!("Error during db request: {}", err);
+                err
+            })
+    }
 }
 
 impl Default for ArangoQuery {
