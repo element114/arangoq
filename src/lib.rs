@@ -1,11 +1,15 @@
+#[cfg(feature = "actix")]
 pub mod actor;
+
 pub mod arango_api;
 pub mod arango_connection;
 pub mod arango_response;
 pub mod database;
 pub mod test;
 
+#[cfg(feature = "actix")]
 pub use actor::*;
+
 pub use arango_api::*;
 pub use arango_connection::*;
 pub use arango_response::*;
