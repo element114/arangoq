@@ -1,11 +1,17 @@
+#[cfg(feature = "actors")]
 use actix::{Actor, System};
+#[cfg(feature = "actors")]
 use actix_rt::spawn;
-use arangoq::*;
+#[cfg(feature = "actors")]
 use futures::future::FutureExt;
-use mockito;
+#[cfg(feature = "actors")]
 use mockito::mock;
+#[cfg(feature = "actors")]
+use mockito;
+use arangoq::*;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "actors")]
 #[test]
 fn test_async_tooling() {
     std::env::set_var("RUST_LOG", "debug,hyper=info");
@@ -47,6 +53,7 @@ fn test_async_tooling() {
     });
 }
 
+#[cfg(feature = "actors")]
 #[test]
 fn test_json_async_tooling() {
     std::env::set_var("RUST_LOG", "debug,hyper=info");
