@@ -1,3 +1,4 @@
+#![forbid(unsafe_code)]
 #[cfg(feature = "actors")]
 pub mod actor;
 
