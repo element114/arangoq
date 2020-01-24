@@ -2,13 +2,13 @@
 use actix::{Actor, System};
 #[cfg(feature = "actors")]
 use actix_rt::spawn;
+use arangoq::*;
 #[cfg(feature = "actors")]
 use futures::future::FutureExt;
 #[cfg(feature = "actors")]
-use mockito::mock;
-#[cfg(feature = "actors")]
 use mockito;
-use arangoq::*;
+#[cfg(feature = "actors")]
+use mockito::mock;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "actors")]

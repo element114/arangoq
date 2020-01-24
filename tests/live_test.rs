@@ -2,10 +2,10 @@
 use actix::{Actor, System};
 #[cfg(feature = "actors")]
 use actix_rt::spawn;
-#[cfg(feature = "actors")]
-use futures::future::FutureExt;
 use arangoq::*;
 use futures::executor::block_on;
+#[cfg(feature = "actors")]
+use futures::future::FutureExt;
 use lazy_static::*;
 use log::debug;
 use proptest::prelude::*;
