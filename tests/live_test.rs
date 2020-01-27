@@ -3,15 +3,12 @@ use actix::{Actor, System};
 #[cfg(feature = "actors")]
 use actix_rt::spawn;
 use arangoq::*;
-use futures::executor::block_on;
 #[cfg(feature = "actors")]
 use futures::future::FutureExt;
 use lazy_static::*;
-use log::debug;
 use proptest::prelude::*;
 use proptest_derive::Arbitrary;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 lazy_static! {
     static ref DATABASE: ArangoConnection = {
@@ -31,34 +28,15 @@ lazy_static! {
     };
 }
 
-/// These tests verify that generated query objects and responses work well
-/// with a real arangodb instance.
-/// Create a db called arangoq with user arangoq, and password arangoq
-/// for these tests to work.
-
-#[ignore]
-#[test]
-fn live_setup() {
-    // setup logs
-    std::env::set_var("RUST_LOG", "debug,hyper=info,tokio_reactor=info");
-    let _res = env_logger::try_init();
-    //set db password
-    std::env::set_var("ARANGO_USER_NAME", "arangoq");
-    std::env::set_var("ARANGO_PASSWORD", "arangoq");
-    // create new connection to local db
-    // let connection = ArangoConnection::new(
-    //     "http://localhost:8529/_db/arangoq/_api/cursor".to_owned(),
-    //     reqwest::r#async::Client::new(),
-    // );
-
-    create_collection("testdocs", arangoq::CollectionType::Document);
-}
-
 #[cfg(feature = "actors")]
 proptest! {
 #![proptest_config(ProptestConfig::with_cases(1))]
 #[ignore]
 #[test]
+/// These tests verify that generated query objects and responses work well
+/// with a real arangodb instance.
+/// Create a db called arangoq with user arangoq, and password arangoq
+/// for these tests to work.
 fn test_live_queries(test_data: TestData) {
     // fn test_live_queries() {
     // let test_data = TestData::default();
@@ -139,28 +117,4 @@ pub struct TestData {
     // a_vec: Vec<String>,
     // #[proptest(strategy = "any::<HashMap<String, String>>()")]
     // a_map: HashMap<String, String>,
-}
-
-fn create_collection(local_name: &str, collection_type: arangoq::CollectionType) {
-    let coll_url = "http://localhost:8529/_db/arangoq/_api/collection";
-
-    let data = json!({
-        "name": local_name,
-        "type": collection_type as u8
-    });
-    debug!("{}", data.to_string());
-    let client = reqwest::Client::new();
-    let res = block_on(
-        client
-            .post(coll_url)
-            .header("accept", "application/json")
-            .header("content-type", "application/json")
-            .basic_auth(
-                std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
-                std::env::var("ARANGO_PASSWORD").ok(),
-            )
-            .json(&data)
-            .send(),
-    );
-    debug!("{:#?}", res);
 }

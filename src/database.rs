@@ -1,6 +1,5 @@
 use crate::arango_api::{Collection, CollectionType};
 use crate::arango_connection::ArangoConnection;
-use futures::executor::block_on;
 
 pub struct Database {
     pub name: String,
@@ -8,7 +7,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn create_collection(&self, local_name: &str, collection_type: CollectionType) {
+    pub async fn create_collection(&self, local_name: &str, collection_type: CollectionType) {
         let qualified_name = self.connection.context.collection_name(local_name);
         let coll_url = self.connection.collection();
 
@@ -28,11 +27,11 @@ impl Database {
             )
             .json(&data)
             .send();
-        let res = block_on(res);
+        let res = res.await;
         log::debug!("{:#?}", res);
     }
 
-    pub fn list_collections(&self) -> Vec<Collection> {
+    pub async fn list_collections(&self) -> Vec<Collection> {
         let coll_url = self.connection.collection();
 
         let client = reqwest::Client::new();
@@ -55,6 +54,6 @@ impl Database {
             }
             return vec![];
         };
-        block_on(fut)
+        fut.await
     }
 }
