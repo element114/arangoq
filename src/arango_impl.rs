@@ -12,7 +12,23 @@ impl ArangoQuery {
     }
 
     pub fn with_bind_vars(query: &str, bind_vars: BTreeMap<String, Value>) -> Self {
-        Self { query: String::from(query), bind_vars }
+        Self { query: String::from(query), bind_vars, ..Default::default() }
+    }
+
+    pub fn raw(query: String, bind_vars: BTreeMap<String, Value>) -> Self {
+        ArangoQuery { query, bind_vars, ..Default::default() }
+    }
+
+    pub fn raw_batched(
+        query: String,
+        bind_vars: BTreeMap<String, Value>,
+        batch_size: usize,
+    ) -> Self {
+        ArangoQuery { query, bind_vars, batch_size: Some(batch_size) }
+    }
+
+    pub fn into_batched(self, batch_size: usize) -> Self {
+        Self { query: self.query, bind_vars: self.bind_vars, batch_size: Some(batch_size) }
     }
 
     /// Executes this query using the provided ArangoConnection.
@@ -40,9 +56,24 @@ impl ArangoQuery {
     }
 }
 
-impl Default for ArangoQuery {
-    fn default() -> Self {
-        Self { query: String::default(), bind_vars: BTreeMap::new() }
+impl CursorExtractor {
+    pub fn next<T: Serialize + DeserializeOwned>(
+        &self,
+        dbc: &ArangoConnection,
+    ) -> impl Future<Output = Result<ArangoResponse<T>, reqwest::Error>> {
+        dbc.client
+            .put(&format!["{}/{}", dbc.cursor().as_str(), self.0])
+            .basic_auth(
+                // TODO add this to ArangoConnection as well
+                std::env::var("ARANGO_USER_NAME").unwrap_or_default(),
+                std::env::var("ARANGO_PASSWORD").ok(),
+            )
+            .send()
+            .and_then(|r| r.json())
+            .map_err(|err| {
+                log::debug!("Error during db request: {}", err);
+                err
+            })
     }
 }
 

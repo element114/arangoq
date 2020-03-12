@@ -1,18 +1,17 @@
 use super::*;
 
-#[derive(Debug, Serialize, PartialEq)]
+#[derive(Debug, Default, Serialize, PartialEq)]
 pub struct ArangoQuery {
     pub(crate) query: String,
 
     #[serde(skip_serializing_if = "BTreeMap::is_empty", rename = "bindVars")]
     pub(crate) bind_vars: BTreeMap<String, Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "batchSize")]
+    pub(crate) batch_size: Option<usize>,
 }
 
-impl ArangoQuery {
-    pub fn raw(query: String, bind_vars: BTreeMap<String, Value>) -> Self {
-        ArangoQuery { query, bind_vars }
-    }
-}
+pub struct CursorExtractor(pub String);
 
 pub trait ExecuteArangoQuery {
     type Output;

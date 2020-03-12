@@ -4,6 +4,9 @@
 mod tests {
     use crate::test::*;
     use crate::*;
+    use mockito;
+    use mockito::{mock, Matcher};
+    use reqwest::Client;
     use std::collections::HashMap;
 
     fn test_collection() -> Collection {
@@ -248,6 +251,7 @@ mod tests {
             201,
             String::new(),
             0,
+            String::default(),
         )
     }
 
@@ -348,5 +352,67 @@ mod tests {
             },
             serde_json::from_str(&edge_json).unwrap()
         );
+    }
+
+    #[actix_rt::test]
+    async fn test_paging() {
+        let url = || mockito::server_url();
+        let cursor_id = || "666666".to_string();
+
+        let conn = ArangoConnection::new(url(), "evt_test".to_string(), Client::default());
+
+        let q =
+            ArangoQuery::raw_batched("FOR x IN stuff RETURN x".to_string(), BTreeMap::new(), 3);
+
+        let test_response1 = ArangoResponse::new(
+            vec![1, 2, 3],
+            true,
+            false,
+            ArangoResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
+            false,
+            201,
+            String::default(),
+            0,
+            cursor_id(),
+        );
+
+        let test_response2 = ArangoResponse::new(
+            vec![4, 5, 6],
+            true,
+            false,
+            ArangoResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
+            false,
+            200,
+            String::default(),
+            0,
+            cursor_id(),
+        );
+
+        let mock_cursor_creation =
+            mock("POST", Matcher::Any)
+                .with_status(201)
+                .with_header("content-type", "application/json")
+                .with_body(serde_json::to_string(&test_response1).unwrap())
+                .expect(1)
+                .create();
+
+        let _result1 = q.try_exec::<HashMap<String, String>>(&conn).await;
+
+        mock_cursor_creation.assert();
+
+        let path = format!("/_db/evt_test/_api/cursor{}", cursor_id());
+
+        let mock_cursor_next =
+            mock("PUT", Matcher::Any)
+                .with_status(200)
+                .with_header("content-type", "application/json")
+                .with_body(serde_json::to_string(&test_response1).unwrap())
+                .expect(1)
+                .create();
+
+        let _result2 =
+            CursorExtractor(test_response1.id).next::<HashMap<String, String>>(&conn).await;
+
+        mock_cursor_next.assert();
     }
 }

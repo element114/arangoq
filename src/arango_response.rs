@@ -20,11 +20,15 @@ pub struct ArangoResponse<T> {
     pub error_message: String,
     #[serde(rename = "errorNum", skip_serializing, default)]
     pub error_num: u64,
+
+    #[serde(skip_serializing_if = "String::is_empty", default)]
+    pub id: String,
 }
 
+#[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 impl<T> ArangoResponse<T> {
-    pub fn new(
+    pub(crate) fn new(
         result: Vec<T>,
         has_more: bool,
         cached: bool,
@@ -33,8 +37,9 @@ impl<T> ArangoResponse<T> {
         code: u16,
         error_message: String,
         error_num: u64,
+        id: String,
     ) -> Self {
-        Self { result, has_more, cached, extra, error, code, error_message, error_num }
+        Self { result, has_more, cached, extra, error, code, error_message, error_num, id }
     }
 }
 

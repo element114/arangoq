@@ -1,6 +1,6 @@
 [package]
 name = "arangoq"
-version = "0.2.2-alpha.0"
+version = "0.2.2-alpha.1"
 authors = ["Andras Mocsary <nobody@reedwolf.com>"]
 edition = "2018"
 publish = false
@@ -30,7 +30,6 @@ actix-rt = "1.0"
 actix-web = "2.0"
 env_logger = "0.7.1"
 lazy_static = "1.4.0"
-mockito = "0.22"
+mockito = "0.23.3"
 proptest = "0.9"
 proptest-derive = "0.1.2"
-

@@ -26,6 +26,9 @@ pub struct TestResponse {
     pub error_message: String,
     #[serde(rename = "errorNum", skip_serializing, default)]
     pub error_num: u64,
+
+    #[serde(skip_serializing_if = "String::is_empty", default)]
+    pub id: String,
 }
 
 impl TestResponse {
@@ -64,6 +67,7 @@ impl<T: Serialize> From<crate::arango_response::ArangoResponse<T>> for TestRespo
             code: ar.code,
             error_message: ar.error_message,
             error_num: ar.error_num,
+            id: ar.id,
         }
     }
 }
