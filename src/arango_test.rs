@@ -166,6 +166,23 @@ mod tests {
             .limit(10)
             .build();
 
+        let query13 = Person::query_builder(collection_name)
+            .read()
+            .sort("name", SortingDirection::Asc)
+            .build();
+
+        let query14 = Person::query_builder(collection_name)
+            .read()
+            .sort("name", SortingDirection::Desc)
+            .build();
+
+        let query15 = Person::query_builder(collection_name)
+            .read()
+            .sort("name", SortingDirection::Desc)
+            .filter()
+            .age_eq(&42)
+            .build();
+
         let values = vec![
             (
                 query1,
@@ -214,6 +231,18 @@ mod tests {
             (
                 query12,
                 r#"{"query":"FOR item IN @@collection FILTER item.age NOT IN @filterVar2 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar2":[41,42,43,44,45],"limit":10}}"#,
+            ),
+            (
+                query13,
+                r#"{"query":"FOR item IN @@collection SORT item.@sort_by LIMIT @limit RETURN item ","bindVars":{"@collection":"People","limit":100,"sort_by":"name"}}"#,
+            ),
+            (
+                query14,
+                r#"{"query":"FOR item IN @@collection SORT item.@sort_by DESC LIMIT @limit RETURN item ","bindVars":{"@collection":"People","limit":100,"sort_by":"name"}}"#,
+            ),
+            (
+                query15,
+                r#"{"query":"FOR item IN @@collection SORT item.@sort_by DESC FILTER item.age == @filterVar3 LIMIT @limit RETURN item ","bindVars":{"@collection":"People","filterVar3":42,"limit":100,"sort_by":"name"}}"#,
             ),
         ];
 

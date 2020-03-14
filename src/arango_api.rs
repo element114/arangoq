@@ -112,6 +112,11 @@ pub enum QueryType {
     Delete,
 }
 
+pub enum SortingDirection {
+    Asc,
+    Desc,
+}
+
 pub trait BuilderTag {}
 
 pub trait Buildable: BuilderTag {}
@@ -125,6 +130,8 @@ pub trait Filterable: BuilderTag {}
 pub trait Limitable: BuilderTag {}
 
 pub trait UpdateWith: BuilderTag {}
+
+pub trait Sortable: BuilderTag {}
 
 pub struct EmptyBuilder;
 
@@ -144,6 +151,8 @@ pub struct LogicalOperator;
 
 pub struct UpdateField;
 
+pub struct Sorting;
+
 impl BuilderTag for EmptyBuilder {}
 
 impl BuilderTag for CreateQuery {}
@@ -162,6 +171,8 @@ impl BuilderTag for LogicalOperator {}
 
 impl BuilderTag for UpdateField {}
 
+impl BuilderTag for Sorting {}
+
 impl Buildable for ReadQuery {}
 
 impl Buildable for DeleteQuery {}
@@ -171,6 +182,8 @@ impl Buildable for CreateQuery {}
 impl Buildable for UpdateField {}
 
 impl Buildable for Conditional {}
+
+impl Buildable for Sorting {}
 
 impl Conditionable for LogicalOperator {}
 
@@ -184,12 +197,20 @@ impl Filterable for DeleteQuery {}
 
 impl Filterable for Conditional {}
 
+impl Filterable for Sorting {}
+
 impl Limitable for ReadQuery {}
 
 impl Limitable for Conditional {}
+
+impl Limitable for Sorting {}
 
 impl LogicallyOperatable for Conditional {}
 
 impl UpdateWith for Conditional {}
 
 impl UpdateWith for UpdateQuery {}
+
+impl Sortable for ReadQuery {}
+
+impl Sortable for Filtering {}

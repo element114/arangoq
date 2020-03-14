@@ -279,6 +279,28 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
             }
         }
 
+        impl <Tag: Sortable> #builder_name<Tag> {
+            fn sort(self, sort_by: &str, direction: SortingDirection) -> #builder_name<Sorting> {
+                let mut new_raw_query = self.raw_query;
+                new_raw_query.push(String::from("SORT item.@sort_by"));
+
+                if let SortingDirection::Desc = direction {
+                    new_raw_query.push(String::from("DESC"));
+                }
+
+                let mut new_bind_vars = self.bind_vars;
+                new_bind_vars
+                    .insert("sort_by".to_owned(), serde_json::to_value(sort_by).unwrap());
+
+                #builder_name {
+                    query_type: self.query_type,
+                    tag: Sorting,
+                    bind_vars: new_bind_vars,
+                    raw_query: new_raw_query,
+                }
+            }
+        }
+
         impl<Tag: Buildable> #builder_name<Tag> {
             pub fn build(self) -> ArangoQuery {
                 let mut new_raw_query = self.raw_query;
