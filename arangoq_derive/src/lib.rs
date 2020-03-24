@@ -307,8 +307,8 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
                 let end_clause = match self.query_type {
                     Some(QueryType::Create) => "INTO @@collection RETURN NEW",
                     Some(QueryType::Read) => "LIMIT @limit RETURN item",
-                    Some(QueryType::Update) => "IN @@collection",
-                    Some(QueryType::Delete) => "REMOVE item IN @@collection",
+                    Some(QueryType::Update) => "IN @@collection RETURN NEW",
+                    Some(QueryType::Delete) => "REMOVE item IN @@collection RETURN OLD",
                     _ => "",
                 };
                 new_raw_query.push(String::from(end_clause));

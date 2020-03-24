@@ -206,23 +206,23 @@ mod tests {
             ),
             (
                 query6,
-                r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection ","bindVars":{"@collection":"People"}}"#,
+                r#"{"query":"FOR item IN @@collection REMOVE item IN @@collection RETURN OLD ","bindVars":{"@collection":"People"}}"#,
             ),
             (
                 query7,
-                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 REMOVE item IN @@collection ","bindVars":{"@collection":"People","filterVar1":"John Lennon"}}"#,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 REMOVE item IN @@collection RETURN OLD ","bindVars":{"@collection":"People","filterVar1":"John Lennon"}}"#,
             ),
             (
                 query8,
-                r#"{"query":"FOR item IN @@collection UPDATE item WITH { name: @withVar1 } IN @@collection ","bindVars":{"@collection":"People","withVar1":"John Lennon"}}"#,
+                r#"{"query":"FOR item IN @@collection UPDATE item WITH { name: @withVar1 } IN @@collection RETURN NEW ","bindVars":{"@collection":"People","withVar1":"John Lennon"}}"#,
             ),
             (
                 query9,
-                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH { age: @withVar2 } IN @@collection ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":66}}"#,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH { age: @withVar2 } IN @@collection RETURN NEW ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":66}}"#,
             ),
             (
                 query10,
-                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH @withVar2 IN @@collection ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":{"age":42,"name":"Douglas Adams"}}}"#,
+                r#"{"query":"FOR item IN @@collection FILTER item.name == @filterVar1 UPDATE item WITH @withVar2 IN @@collection RETURN NEW ","bindVars":{"@collection":"People","filterVar1":"Paul McCartney","withVar2":{"age":42,"name":"Douglas Adams"}}}"#,
             ),
             (
                 query11,
