@@ -1,6 +1,6 @@
 # image: gitlab/dind
 #image: docker:git
-image: rust:1.40
+image: rust:1.41
 
 # dind requires runners.docker volumes to contain "/certs/client", privileged = true and wait_for_services_timeout = 120 at least
 #services:

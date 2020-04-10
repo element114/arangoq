@@ -7,7 +7,7 @@ mod tests {
     use crate::arango_api::{
         ArangoQuery, Buildable, BuilderTag, Collection, CollectionType, Conditionable, Conditional,
         CreateQuery, CursorExtractor, DeleteQuery, Edge, EmptyBuilder, ExecuteArangoQuery,
-        Filterable, Filtering, GetAll, GetByKey, GetByKeys, Limitable, LogicalOperator,
+        Filterable, Filtering, GetAll, GetByKey, GetByKeys, Insert, Limitable, LogicalOperator,
         LogicallyOperatable, QueryType, ReadQuery, Remove, Replace, Sortable, Sorting,
         SortingDirection, Truncate, Update, UpdateField, UpdateQuery, UpdateWith,
     };
