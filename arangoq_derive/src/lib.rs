@@ -48,9 +48,16 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
                 let fn_name = Ident::new(&format!("{}_{}", id, op_name), Span::call_site());
                 let bn = Ident::new(&builder_name_precursor(), Span::call_site());
 
+                let doc_comment = format!(
+                    "/// Test doc comment for {}.
+                    /// with {}
+                    /// call {}",
+                    fn_name, bn, call
+                );
                 match op_name {
                     &"in" | &"not_in" =>
                         quote![
+                            #[doc = #doc_comment]
                             pub fn #fn_name(self, values: &[#ty]) -> #bn<Conditional> {
                                 let mut new_bind_vars = self.bind_vars;
                                 let bind_var_name = format!("filterVar{}", new_bind_vars.len());

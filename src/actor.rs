@@ -13,6 +13,7 @@ impl<T: 'static> Message for DbQuery<T> {
 /// This is an actix async actor using reqwest async client.
 /// Usage:
 ///
+/// ```ignore
 /// use arangoq::{ArangoActor, ArangoConnection};
 /// use reqwest::r#async::Client;
 /// use actix::prelude::*;
@@ -28,7 +29,7 @@ impl<T: 'static> Message for DbQuery<T> {
 ///         .data(addr.clone())
 /// });
 /// sys.run();
-///
+/// ```
 pub struct ArangoActorAsync {
     pub connection: ArangoConnection,
 }

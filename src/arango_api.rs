@@ -60,6 +60,9 @@ pub struct Edge {
 }
 
 impl Edge {
+    /// ```ignore
+    /// let e = Edge::new("users/1234", "orders/5678");
+    /// ```
     pub fn new(_from: &str, _to: &str) -> Self {
         Self { _from: _from.to_owned(), _to: _to.to_owned(), ..Default::default() }
     }

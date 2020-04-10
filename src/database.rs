@@ -7,6 +7,9 @@ pub struct Database {
 }
 
 impl Database {
+    /// ```ignore
+    /// create_collection("collection_name", arangoq::CollectionType::Document).await;
+    /// ```
     pub async fn create_collection(&self, local_name: &str, collection_type: CollectionType) {
         let qualified_name = self.connection.context.collection_name(local_name);
         let coll_url = self.connection.collection();

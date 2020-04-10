@@ -1,26 +1,15 @@
+# Query tests
+
+```
 #[cfg(test)]
 #[allow(dead_code)]
 #[allow(unused_variables)]
 mod tests {
-    // use crate::test::*;
-    // use crate::*;
-    use crate::arango_api::{
-        ArangoQuery, Buildable, BuilderTag, Collection, CollectionType, Conditionable, Conditional,
-        CreateQuery, CursorExtractor, DeleteQuery, Edge, EmptyBuilder, ExecuteArangoQuery,
-        Filterable, Filtering, GetAll, GetByKey, GetByKeys, Limitable, LogicalOperator,
-        LogicallyOperatable, QueryType, ReadQuery, Remove, Replace, Sortable, Sorting,
-        SortingDirection, Truncate, Update, UpdateField, UpdateQuery, UpdateWith,
-    };
-    use crate::arango_connection::{ArangoConnection, CollectionMandatory};
-    use crate::arango_response::{ArangoResponse, ArangoResponseExtra};
-    use crate::test::ArangoMock;
-    use crate::ArangoBuilder;
-    use maplit::hashmap;
+    use crate::test::*;
+    use crate::*;
     use mockito;
     use mockito::{mock, Matcher};
     use reqwest::Client;
-    use serde::{Deserialize, Serialize};
-    use std::collections::BTreeMap;
     use std::collections::HashMap;
 
     fn test_collection() -> Collection {
@@ -405,7 +394,8 @@ mod tests {
 
         let conn = ArangoConnection::new(url(), "evt_test".to_string(), Client::default());
 
-        let q = ArangoQuery::raw_batched("FOR x IN stuff RETURN x".to_string(), BTreeMap::new(), 3);
+        let q =
+            ArangoQuery::raw_batched("FOR x IN stuff RETURN x".to_string(), BTreeMap::new(), 3);
 
         let test_response1 = ArangoResponse::new(
             vec![1, 2, 3],
@@ -431,12 +421,13 @@ mod tests {
             cursor_id(),
         );
 
-        let mock_cursor_creation = mock("POST", Matcher::Any)
-            .with_status(201)
-            .with_header("content-type", "application/json")
-            .with_body(serde_json::to_string(&test_response1).unwrap())
-            .expect(1)
-            .create();
+        let mock_cursor_creation =
+            mock("POST", Matcher::Any)
+                .with_status(201)
+                .with_header("content-type", "application/json")
+                .with_body(serde_json::to_string(&test_response1).unwrap())
+                .expect(1)
+                .create();
 
         let _result1 = q.try_exec::<HashMap<String, String>>(&conn).await;
 
@@ -444,12 +435,13 @@ mod tests {
 
         let path = format!("/_db/evt_test/_api/cursor{}", cursor_id());
 
-        let mock_cursor_next = mock("PUT", Matcher::Any)
-            .with_status(200)
-            .with_header("content-type", "application/json")
-            .with_body(serde_json::to_string(&test_response1).unwrap())
-            .expect(1)
-            .create();
+        let mock_cursor_next =
+            mock("PUT", Matcher::Any)
+                .with_status(200)
+                .with_header("content-type", "application/json")
+                .with_body(serde_json::to_string(&test_response1).unwrap())
+                .expect(1)
+                .create();
 
         let _result2 =
             CursorExtractor(test_response1.id).next::<HashMap<String, String>>(&conn).await;
@@ -457,3 +449,4 @@ mod tests {
         mock_cursor_next.assert();
     }
 }
+```

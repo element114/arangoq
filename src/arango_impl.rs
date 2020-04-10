@@ -11,14 +11,33 @@ impl ArangoQuery {
         Self { query: String::from(query), ..Default::default() }
     }
 
+    /// Same as raw, but with &str
     pub fn with_bind_vars(query: &str, bind_vars: BTreeMap<String, Value>) -> Self {
         Self { query: String::from(query), bind_vars, ..Default::default() }
     }
 
+    /// ```ignore
+    /// let mut bind_vars = std::collections::BTreeMap::new();
+    /// bind_vars.insert(
+    ///     "@conactcoll".to_owned(),
+    ///     serde_json::Value::String(conactcoll.clone()),
+    /// );
+    /// bind_vars.insert("email".to_owned(), serde_json::Value::String("aaa@bbb.ccc"));
+    /// let raw_query = "FOR c IN @@conactcoll FOR b IN @@balancecoll FILTER c.email == @email RETURN b";
+    /// let query = ArangoQuery::raw(raw_query.to_owned(), bind_vars);
+    /// match query.try_exec::<CreditBalance>(&conn).await {
+    ///    Ok(ar) => ar.result,
+    ///    Err(_) => vec![],
+    ///}
+    /// ```
     pub fn raw(query: String, bind_vars: BTreeMap<String, Value>) -> Self {
         ArangoQuery { query, bind_vars, ..Default::default() }
     }
 
+    /// Returns results in batches of size `batch_size`
+    /// ```ignore
+    /// let query = ArangoQuery::raw_batched(raw_query.to_owned(), bind_vars, 100);
+    /// ```
     pub fn raw_batched(
         query: String,
         bind_vars: BTreeMap<String, Value>,
@@ -27,6 +46,7 @@ impl ArangoQuery {
         ArangoQuery { query, bind_vars, batch_size: Some(batch_size) }
     }
 
+    /// Converts an existing query to `batched` of size `batch_size`
     pub fn into_batched(self, batch_size: usize) -> Self {
         Self { query: self.query, bind_vars: self.bind_vars, batch_size: Some(batch_size) }
     }
@@ -57,6 +77,7 @@ impl ArangoQuery {
 }
 
 impl CursorExtractor {
+    /// TODO: document this
     pub fn next<T: Serialize + DeserializeOwned>(
         &self,
         dbc: &ArangoConnection,
@@ -78,6 +99,9 @@ impl CursorExtractor {
 }
 
 impl Collection {
+    /// ```ignore
+    /// let coll = Collection::new(coll.as_str(), CollectionType::Document);
+    /// ```
     pub fn new(name: &str, collection_type: CollectionType) -> Self {
         Self {
             id: String::new(),
@@ -91,6 +115,9 @@ impl Collection {
 }
 
 impl Insert for Collection {
+    /// ```ignore
+    /// let query = coll.insert(&data);
+    /// ```
     fn insert<Elem: Serialize>(&self, elem: &Elem) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "INSERT @value INTO @@collection RETURN NEW",
@@ -103,6 +130,9 @@ impl Insert for Collection {
 }
 
 impl GetAll for Collection {
+    /// ```ignore
+    /// let query = coll.get_all();
+    /// ```
     fn get_all(&self) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "FOR item in @@collection RETURN item",
@@ -112,6 +142,9 @@ impl GetAll for Collection {
 }
 
 impl GetByKey for Collection {
+    /// ```ignore
+    /// let query = coll.get_by_key(key);
+    /// ```
     fn get_by_key<Key: Serialize>(&self, key: Key) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "RETURN DOCUMENT(@@collection, @key)",
@@ -124,6 +157,9 @@ impl GetByKey for Collection {
 }
 
 impl GetByKeys for Collection {
+    /// ```ignore
+    /// let query = coll.get_by_keys(&["key1","key2"]);
+    /// ```
     fn get_by_keys<Key: Serialize>(&self, keys: &[Key]) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "RETURN DOCUMENT(@@collection, @keys)",
@@ -136,6 +172,9 @@ impl GetByKeys for Collection {
 }
 
 impl Replace for Collection {
+    /// ```ignore
+    /// let query = coll.replace("Paul", &TestUser::new("John Lennon"));
+    /// ```
     fn replace<Key: Serialize, Elem: Serialize>(&self, key: Key, elem: Elem) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "REPLACE @key WITH @elem IN @@collection RETURN NEW",
@@ -149,6 +188,9 @@ impl Replace for Collection {
 }
 
 impl Update for Collection {
+    /// ```ignore
+    /// let query = coll.update("Paul", &Instrument { instrument: String::from("bass") });
+    /// ```
     fn update<Key: Serialize, Update: Serialize>(&self, key: Key, update: Update) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "UPDATE @key WITH @update IN @@collection RETURN NEW",
@@ -162,6 +204,9 @@ impl Update for Collection {
 }
 
 impl Remove for Collection {
+    /// ```ignore
+    /// let query = coll.remove("Paul");
+    /// ```
     fn remove<Key: Serialize>(&self, key: Key) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "REMOVE @key IN @@collection RETURN OLD",
@@ -174,6 +219,9 @@ impl Remove for Collection {
 }
 
 impl Truncate for Collection {
+    /// ```ignore
+    /// let query = coll.truncate();
+    /// ```
     fn truncate(&self) -> ArangoQuery {
         ArangoQuery::with_bind_vars(
             "FOR item IN @@collection REMOVE item IN @@collection",

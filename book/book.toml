@@ -1,0 +1,6 @@
+[book]
+authors = ["Andras Mocsary"]
+language = "en"
+multilingual = false
+src = "src"
+title = "User Manual"

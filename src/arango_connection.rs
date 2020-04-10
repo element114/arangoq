@@ -26,6 +26,17 @@ impl ArangoConnection {
     pub fn new(host: String, database: String, client: Client) -> Self {
         Self::with_context(host, database, client, Context::default())
     }
+    /// ```ignore
+    /// let db_conn = "test_db";
+    /// let db_name = "https://your dbserver.com"
+    /// let app_prefix = "api";
+    /// let connection = ArangoConnection::with_context(
+    ///     db_conn,
+    ///     db_name,
+    ///     reqwest::Client::new(),
+    ///     arangoq::Context { app_prefix },
+    /// );
+    /// ```
     pub fn with_context(host: String, database: String, client: Client, context: Context) -> Self {
         ArangoConnection {
             host: Arc::new(host),
