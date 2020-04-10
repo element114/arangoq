@@ -29,11 +29,10 @@ test_and_clippy:
 pages:
   stage: dist_doc
   script:
+    - CARGO_TARGET_DIR=/tmp/.cargo/target CARGO_HOME=/tmp/.cargo cargo doc --all-features --no-deps
     - mkdir .public
     - cp -r target/doc/* .public
     - mv .public public
-  dependencies:
-    - compile
   artifacts:
     paths:
       - public
