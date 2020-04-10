@@ -40,7 +40,6 @@ mod tests {
         }
     }
 
-    #[cfg(rustdoc)]
     #[test]
     fn test_collection_insert() {
         let query = test_collection().insert(&TestUser::new("Paul McCartney"));
