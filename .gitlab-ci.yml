@@ -29,9 +29,9 @@ test_and_clippy:
 pages:
   stage: dist_doc
   script:
-    - cargo doc --all-features --no-deps
+    - CARGO_TARGET_DIR=/tmp/.cargo/target CARGO_HOME=/tmp/.cargo CARGO_INCREMENTAL=1 RUST_BACKTRACE=1 cargo doc --all-features --no-deps
     - mkdir .public
-    - cp -r target/doc/* .public
+    - cp -r /tmp/.cargo/target/doc/* .public
     - mv .public public
   artifacts:
     paths:
