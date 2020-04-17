@@ -11,6 +11,7 @@ pub struct ArangoQuery {
     pub(crate) batch_size: Option<usize>,
 }
 
+#[derive(Debug)]
 pub struct CursorExtractor(pub String);
 
 pub trait ExecuteArangoQuery {

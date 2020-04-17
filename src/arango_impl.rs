@@ -58,6 +58,7 @@ impl ArangoQuery {
         &self,
         dbc: &ArangoConnection,
     ) -> impl Future<Output = Result<ArangoResponse<T>, reqwest::Error>> {
+        let nm = format!("{:?}", self);
         dbc.client
             .post(dbc.cursor().as_str())
             .header("content-type", "application/json")
@@ -69,8 +70,8 @@ impl ArangoQuery {
             )
             .send()
             .and_then(|r| r.json())
-            .map_err(|err| {
-                log::debug!("Error during db request: {}", err);
+            .map_err(move |err| {
+                log::debug!("Error during db request: {} Query: {:?}", err, nm);
                 err
             })
     }
@@ -82,6 +83,7 @@ impl CursorExtractor {
         &self,
         dbc: &ArangoConnection,
     ) -> impl Future<Output = Result<ArangoResponse<T>, reqwest::Error>> {
+        let nm = format!("{:?}", self);
         dbc.client
             .put(&format!["{}/{}", dbc.cursor().as_str(), self.0])
             .basic_auth(
@@ -91,8 +93,8 @@ impl CursorExtractor {
             )
             .send()
             .and_then(|r| r.json())
-            .map_err(|err| {
-                log::debug!("Error during db request: {}", err);
+            .map_err(move |err| {
+                log::debug!("Error during db request: {} Query: {:?}", err, nm);
                 err
             })
     }
