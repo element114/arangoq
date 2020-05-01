@@ -1,6 +1,6 @@
 [package]
 name = "arangoq"
-version = "0.2.2-alpha.3"
+version = "0.2.2-alpha.4"
 authors = ["Andras Mocsary <nobody@reedwolf.com>"]
 edition = "2018"
 publish = false

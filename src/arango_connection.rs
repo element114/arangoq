@@ -57,7 +57,7 @@ impl ArangoConnection {
 /// This struct contains all the props the db might include on top of user defined ones.
 ///
 /// The _extra_ HashMap handles the case when a new property is defined in the collection,
-/// but the rust sturct is not yet updated to handle that.
+/// but the rust struct is not yet updated to handle that.
 /// This is mandatory to be able to replace running services granularly, instead of full halt.
 /// Avoids a panic in the old code by deserializing to _extra_.
 ///
@@ -103,6 +103,10 @@ impl Context {
     /// app_prefix is used to store collections of the same name for different apps using the same db
     /// This function returns the final collection name
     pub fn collection_name(&self, local_name: &str) -> String {
-        format!("{}_{}", self.app_prefix, local_name)
+        if self.app_prefix.is_empty() {
+            local_name.to_owned()
+        } else {
+            format!("{}_{}", self.app_prefix, local_name)
+        }
     }
 }
