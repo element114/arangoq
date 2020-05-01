@@ -97,7 +97,7 @@ impl CollectionMandatory {
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct Context {
-    pub app_prefix: &'static str,
+    pub app_prefix: String,
 }
 impl Context {
     /// app_prefix is used to store collections of the same name for different apps using the same db
