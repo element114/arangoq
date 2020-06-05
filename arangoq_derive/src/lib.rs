@@ -326,16 +326,22 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
             }
         }
 
-        pub trait #builder_factory_name {
-            fn query_builder(collection_name: &str) -> #builder_name<EmptyBuilder>;
-        }
+        // pub trait #builder_factory_name {
+        //     fn query_builder(collection_name: &str) -> #builder_name<EmptyBuilder>;
+        // }
 
-        impl #builder_factory_name for #struct_name {
+        // impl #builder_factory_name for #struct_name {
+        //     fn query_builder(collection_name: &str) -> #builder_name<EmptyBuilder> {
+        //         #builder_name::new(collection_name)
+        //     }
+        // }
+
+        impl ArangoBuilder for #struct_name {
+            type Builder = #builder_name<EmptyBuilder>;
             fn query_builder(collection_name: &str) -> #builder_name<EmptyBuilder> {
                 #builder_name::new(collection_name)
             }
         }
-
     ]
 }
 

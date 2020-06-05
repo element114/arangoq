@@ -121,6 +121,11 @@ pub enum SortingDirection {
     Desc,
 }
 
+pub trait ArangoBuilder {
+    type Builder;
+    fn query_builder(collection_name: &str) -> Self::Builder;
+}
+
 pub trait BuilderTag {}
 
 pub trait Buildable: BuilderTag {}

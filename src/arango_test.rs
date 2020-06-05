@@ -455,4 +455,29 @@ mod tests {
 
         mock_cursor_next.assert();
     }
+
+    #[test]
+    fn test_generic_query_builder() {
+        #[derive(ArangoBuilder, Serialize)]
+        pub struct People {
+            name: &'static str,
+            age: u8,
+        }
+
+        #[derive(ArangoBuilder, Serialize)]
+        pub struct Person {
+            name: &'static str,
+            age: u8,
+        }
+
+        fn generic_query<T>()
+        where
+            T: Sized + Serialize + Default + core::fmt::Debug + ArangoBuilder,
+        {
+            let collection_name = "Drawer";
+            let t_as_builder = T::query_builder(collection_name);
+
+            // let query1 = T::query_builder(collection_name).read().build();
+        }
+    }
 }
