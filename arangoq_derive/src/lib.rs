@@ -150,12 +150,12 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
 
         impl #builder_name<EmptyBuilder> {
             pub fn new(collection_name: &str) -> Self {
+                let mut bind_vars = std::collections::BTreeMap::new();
+                bind_vars.insert(String::from("@collection"), serde_json::to_value(&collection_name).unwrap());
                 Self {
                     query_type: None,
                     tag: EmptyBuilder,
-                    bind_vars: maplit::btreemap![
-                        String::from("@collection") => serde_json::to_value(&collection_name).unwrap()
-                    ],
+                    bind_vars,
                     raw_query: vec![],
                 }
             }
