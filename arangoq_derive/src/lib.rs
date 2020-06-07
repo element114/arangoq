@@ -81,6 +81,7 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
                         ],
                     _ =>
                         quote![
+                            #[allow(clippy::ptr_arg)]
                             pub fn #fn_name(self, value: &#ty) -> #bn<Conditional> {
                                 let mut new_bind_vars = self.bind_vars;
                                 let bind_var_name = format!("filterVar{}", new_bind_vars.len());
@@ -118,6 +119,7 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
             let bn = Ident::new(&builder_name_precursor(), Span::call_site());
 
             quote![
+                #[allow(clippy::ptr_arg)]
                 pub fn #fn_name(self, value: &#ty) -> #bn<UpdateField> {
                     let mut new_bind_vars = self.bind_vars;
                     let bind_var_name = format!("withVar{}", new_bind_vars.len());
