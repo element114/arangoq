@@ -117,6 +117,7 @@ pub trait Update {
 
 pub trait Remove {
     fn remove<Key: Serialize>(&self, key: Key) -> ArangoQuery;
+    fn remove_with_id<Id: Serialize>(&self, id: Id) -> ArangoQuery;
 }
 
 pub trait Truncate {

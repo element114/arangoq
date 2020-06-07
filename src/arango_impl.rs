@@ -268,6 +268,19 @@ impl Remove for Collection {
             ],
         )
     }
+
+    /// ```ignore
+    /// let query = coll.remove_with_id("Beatles/Paul");
+    /// ```
+    fn remove_with_id<Id: Serialize>(&self, id: Id) -> ArangoQuery {
+        ArangoQuery::with_bind_vars(
+            "LET doc = DOCUMENT(@id) REMOVE doc IN @@collection RETURN OLD",
+            btreemap![
+                String::from("@collection") => Value::String(self.name.to_owned()),
+                String::from("id") => serde_json::to_value(&id).unwrap()
+            ],
+        )
+    }
 }
 
 impl Truncate for Collection {
