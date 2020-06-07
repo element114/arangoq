@@ -1,4 +1,7 @@
-use super::*;
+use super::CollectionMandatory;
+use serde::{Deserialize, Serialize};
+use serde_json::value::Value;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Default, Serialize, PartialEq)]
 pub struct ArangoQuery {
@@ -64,8 +67,9 @@ impl Edge {
     /// ```ignore
     /// let e = Edge::new("users/1234", "orders/5678");
     /// ```
+    #[must_use]
     pub fn new(_from: &str, _to: &str) -> Self {
-        Self { _from: _from.to_owned(), _to: _to.to_owned(), ..Default::default() }
+        Self { _from: _from.to_owned(), _to: _to.to_owned(), ..Self::default() }
     }
 }
 
@@ -93,6 +97,11 @@ pub trait GetByKeys {
 
 pub trait Replace {
     fn replace<Key: Serialize, Elem: Serialize>(&self, key: Key, elem: Elem) -> ArangoQuery;
+    fn replace_with_id<Key: Serialize, Replace: Serialize>(
+        &self,
+        key: Key,
+        replace: Replace,
+    ) -> ArangoQuery;
 }
 
 pub trait Update {

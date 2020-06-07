@@ -1,4 +1,4 @@
-use super::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ArangoResponse<T> {
@@ -10,7 +10,7 @@ pub struct ArangoResponse<T> {
     #[serde(default)]
     pub cached: bool,
     #[serde(default)]
-    pub extra: ArangoResponseExtra,
+    pub extra: ResponseExtra,
     #[serde(default)]
     pub error: bool,
     #[serde(default)]
@@ -32,7 +32,7 @@ impl<T> ArangoResponse<T> {
         result: Vec<T>,
         has_more: bool,
         cached: bool,
-        extra: ArangoResponseExtra,
+        extra: ResponseExtra,
         error: bool,
         code: u16,
         error_message: String,
@@ -44,7 +44,7 @@ impl<T> ArangoResponse<T> {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
-pub struct ArangoResponseExtra {
+pub struct ResponseExtra {
     #[serde(default)]
     pub stats: ArangoStats,
     #[serde(default)]
@@ -52,7 +52,8 @@ pub struct ArangoResponseExtra {
 }
 
 #[allow(clippy::too_many_arguments)]
-impl ArangoResponseExtra {
+impl ResponseExtra {
+    #[must_use]
     pub fn new(
         writes_executed: usize,
         writes_ignored: usize,

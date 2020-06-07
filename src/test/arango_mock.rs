@@ -8,6 +8,7 @@ pub struct ArangoMock {
 }
 
 impl ArangoMock {
+    #[must_use]
     ///
     /// ```
     /// use maplit::hashmap;
@@ -34,7 +35,7 @@ impl ExecuteArangoQuery for ArangoMock {
     fn execute_query(&self, query: ArangoQuery) -> <Self as ExecuteArangoQuery>::Output {
         self.requests_and_responses
             .get(&serde_json::to_string(&query).unwrap())
-            .map(|s| s.to_owned())
+            .map(ToOwned::to_owned)
             .unwrap_or_default()
     }
 }

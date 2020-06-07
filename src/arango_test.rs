@@ -12,7 +12,7 @@ mod tests {
         SortingDirection, Truncate, Update, UpdateField, UpdateQuery, UpdateWith,
     };
     use crate::arango_connection::{ArangoConnection, CollectionMandatory};
-    use crate::arango_response::{ArangoResponse, ArangoResponseExtra};
+    use crate::arango_response::{ArangoResponse, ResponseExtra};
     use crate::test::ArangoMock;
     use crate::ArangoBuilder;
     use maplit::hashmap;
@@ -302,7 +302,7 @@ mod tests {
             vec![U::new("13221", "Characters/13221", "_ZEJkt1W---", "John Doe")],
             false,
             false,
-            ArangoResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654956817626953e-4, 2107, vec![]),
+            ResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654956817626953e-4, 2107, vec![]),
             false,
             201,
             String::new(),
@@ -423,7 +423,7 @@ mod tests {
             vec![1, 2, 3],
             true,
             false,
-            ArangoResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
+            ResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
             false,
             201,
             String::default(),
@@ -435,7 +435,7 @@ mod tests {
             vec![4, 5, 6],
             true,
             false,
-            ArangoResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
+            ResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
             false,
             200,
             String::default(),

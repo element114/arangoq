@@ -1,21 +1,29 @@
-use super::*;
+use super::{
+    btreemap, ArangoConnection, ArangoQuery, ArangoResponse, Collection, CollectionType,
+    CursorExtractor, GetAll, GetByKey, GetByKeys, Insert, Remove, Replace, Truncate, Update,
+};
 use core::future::Future;
 use futures::future::TryFutureExt;
+use serde::Serialize;
 // use maplit::*;
 use serde::de::DeserializeOwned;
+use serde_json::value::Value;
 use std::collections::BTreeMap;
 
 #[allow(dead_code)]
 impl ArangoQuery {
+    #[must_use]
     pub(crate) fn new(query: &str) -> Self {
-        Self { query: String::from(query), ..Default::default() }
+        Self { query: String::from(query), ..Self::default() }
     }
 
+    #[must_use]
     /// Same as raw, but with &str
     pub fn with_bind_vars(query: &str, bind_vars: BTreeMap<String, Value>) -> Self {
-        Self { query: String::from(query), bind_vars, ..Default::default() }
+        Self { query: String::from(query), bind_vars, ..Self::default() }
     }
 
+    #[must_use]
     /// ```ignore
     /// let mut bind_vars = std::collections::BTreeMap::new();
     /// bind_vars.insert(
@@ -31,9 +39,10 @@ impl ArangoQuery {
     ///}
     /// ```
     pub fn raw(query: String, bind_vars: BTreeMap<String, Value>) -> Self {
-        ArangoQuery { query, bind_vars, ..Default::default() }
+        ArangoQuery { query, bind_vars, ..Self::default() }
     }
 
+    #[must_use]
     /// Returns results in batches of size `batch_size`
     /// ```ignore
     /// let query = ArangoQuery::raw_batched(raw_query.to_owned(), bind_vars, 100);
@@ -46,14 +55,18 @@ impl ArangoQuery {
         ArangoQuery { query, bind_vars, batch_size: Some(batch_size) }
     }
 
+    #[must_use]
     /// Converts an existing query to `batched` of size `batch_size`
     pub fn into_batched(self, batch_size: usize) -> Self {
         Self { query: self.query, bind_vars: self.bind_vars, batch_size: Some(batch_size) }
     }
 
-    /// Executes this query using the provided ArangoConnection.
-    /// Returns ArangoResponse or reqwest::Error
-    /// Note: reqwest::Error is temporarily exposed and may change in the future.
+    /// Executes this query using the provided `ArangoConnection`.
+    /// Returns `ArangoResponse`
+    /// # Errors
+    ///
+    /// Returns `reqwest::Error`
+    /// Note: `reqwest::Error` is temporarily exposed and may change in the future.
     pub fn try_exec<T: Serialize + DeserializeOwned>(
         &self,
         dbc: &ArangoConnection,
@@ -69,7 +82,7 @@ impl ArangoQuery {
                 std::env::var("ARANGO_PASSWORD").ok(),
             )
             .send()
-            .and_then(|r| r.json())
+            .and_then(reqwest::Response::json)
             .map_err(move |err| {
                 log::debug!("Error during db request: {} Query: {:?}", err, nm);
                 err
@@ -92,7 +105,7 @@ impl CursorExtractor {
                 std::env::var("ARANGO_PASSWORD").ok(),
             )
             .send()
-            .and_then(|r| r.json())
+            .and_then(reqwest::Response::json)
             .map_err(move |err| {
                 log::debug!("Error during db request: {} Query: {:?}", err, nm);
                 err
@@ -101,6 +114,7 @@ impl CursorExtractor {
 }
 
 impl Collection {
+    #[must_use]
     /// ```ignore
     /// let coll = Collection::new(coll.as_str(), CollectionType::Document);
     /// ```
@@ -184,6 +198,24 @@ impl Replace for Collection {
                 String::from("@collection") => Value::String(self.name.to_owned()),
                 String::from("elem") => serde_json::to_value(&elem).unwrap(),
                 String::from("key") => serde_json::to_value(&key).unwrap(),
+            ],
+        )
+    }
+
+    /// ```ignore
+    /// let query = coll.replace_with_id("Paul", &Instrument { instrument: String::from("bass") });
+    /// ```
+    fn replace_with_id<Id: Serialize, Replace: Serialize>(
+        &self,
+        id: Id,
+        replace: Replace,
+    ) -> ArangoQuery {
+        ArangoQuery::with_bind_vars(
+            "LET doc = DOCUMENT(@id) REPLACE doc WITH @replace IN @@collection RETURN NEW",
+            btreemap![
+                String::from("@collection") => Value::String(self.name.to_owned()),
+                String::from("id") => serde_json::to_value(&id).unwrap(),
+                String::from("replace") => serde_json::to_value(&replace).unwrap(),
             ],
         )
     }

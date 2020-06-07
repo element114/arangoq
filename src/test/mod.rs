@@ -1,4 +1,4 @@
-use crate::arango_response::ArangoResponseExtra;
+use crate::arango_response::ResponseExtra;
 use serde::{Deserialize, Serialize};
 
 mod arango_mock;
@@ -6,6 +6,7 @@ mod arango_mock;
 #[allow(unused_imports)] // used in test
 pub use arango_mock::*;
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct TestResponse {
     #[serde(default = "Vec::new")]
@@ -16,7 +17,7 @@ pub struct TestResponse {
     #[serde(default)]
     pub cached: bool,
     #[serde(default)]
-    pub extra: ArangoResponseExtra,
+    pub extra: ResponseExtra,
     #[serde(default)]
     pub error: bool,
     #[serde(default)]
@@ -32,11 +33,13 @@ pub struct TestResponse {
 }
 
 impl TestResponse {
+    #[must_use]
     pub fn new() -> Self {
         TestResponse::default()
     }
 
-    pub fn with_results<T: Serialize>(data: Vec<T>) -> Self {
+    #[must_use]
+    pub fn with_results<T: Serialize>(data: &[T]) -> Self {
         let mut res = TestResponse::default();
         res.result = data.iter().map(|t| serde_json::to_value(t).unwrap()).collect();
         res.code = 201;
@@ -45,6 +48,7 @@ impl TestResponse {
         res
     }
 
+    #[must_use]
     pub fn with_code(code: u16) -> Self {
         let mut res = TestResponse::default();
         res.code = code;
