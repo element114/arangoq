@@ -203,6 +203,24 @@ impl Update for Collection {
             ],
         )
     }
+
+    /// ```ignore
+    /// let query = coll.update_with_id("Paul", &Instrument { instrument: String::from("bass") });
+    /// ```
+    fn update_with_id<Id: Serialize, Update: Serialize>(
+        &self,
+        id: Id,
+        update: Update,
+    ) -> ArangoQuery {
+        ArangoQuery::with_bind_vars(
+            "LET doc = DOCUMENT(@id) UPDATE doc WITH @update IN @@collection RETURN NEW",
+            btreemap![
+                String::from("@collection") => Value::String(self.name.to_owned()),
+                String::from("id") => serde_json::to_value(&id).unwrap(),
+                String::from("update") => serde_json::to_value(&update).unwrap(),
+            ],
+        )
+    }
 }
 
 impl Remove for Collection {

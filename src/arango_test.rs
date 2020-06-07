@@ -93,6 +93,19 @@ mod tests {
     }
 
     #[test]
+    fn test_collection_update_with_id() {
+        #[derive(Serialize)]
+        struct Instrument {
+            instrument: String,
+        }
+
+        let query = test_collection()
+            .update_with_id("Beatles/Paul", &Instrument { instrument: String::from("bass") });
+        let expected = r#"{"query":"LET doc = DOCUMENT(@id) UPDATE doc WITH @update IN @@collection RETURN NEW","bindVars":{"@collection":"Beatles","id":"Beatles/Paul","update":{"instrument":"bass"}}}"#;
+        assert_eq!(expected, serde_json::to_string(&query).unwrap());
+    }
+
+    #[test]
     fn test_collection_remove() {
         let query = test_collection().remove("Paul");
         let expected = r#"{"query":"REMOVE @key IN @@collection RETURN OLD","bindVars":{"@collection":"Beatles","key":"Paul"}}"#;
