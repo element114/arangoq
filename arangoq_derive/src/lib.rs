@@ -101,11 +101,81 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
                             }
                         ]
                 }
-
-
             })
         })
         .collect::<Vec<TokenStream2>>();
+
+    // Struct specific methods for field based filtering
+    let condition_qs_str =
+        [
+            ("eq", "=="),
+            ("ne", "!="),
+            ("gt", ">"),
+            ("lt", "<"),
+            ("ge", ">="),
+            ("le", "<="),
+            ("in", "IN"),
+            ("not_in", "NOT IN"),
+        ]
+        .iter()
+        .map(move |(op_name, op)| {
+            let bn = Ident::new(&builder_name_precursor(), Span::call_site());
+            let fn_name = Ident::new(&format!("_{}", op_name), Span::call_site());
+
+            let doc_comment = format!(
+                "/// Test doc comment for {}.
+                /// with {}",
+                op_name, bn
+            );
+            match op_name {
+                &"in" | &"not_in" =>
+                    quote![
+                        #[doc = #doc_comment]
+                        pub fn #fn_name<T>(self, prop_name: &str, values: &[T]) -> #bn<Conditional> where T: Serialize {
+                            let mut new_bind_vars = self.bind_vars;
+                            let bind_var_name = format!("filterVar{}", new_bind_vars.len());
+
+                            new_bind_vars
+                                .insert(
+                                    bind_var_name.clone(),
+                                    serde_json::to_value(&values).unwrap()
+                                );
+
+                            let mut new_raw_query = self.raw_query;
+                            new_raw_query.push(format!("item.{} {} @{}", prop_name, #op, bind_var_name));
+
+                            #bn {
+                                query_type: self.query_type,
+                                tag: Conditional,
+                                bind_vars: new_bind_vars,
+                                raw_query: new_raw_query,
+                            }
+                        }
+                    ],
+                _ =>
+                    quote![
+                        #[allow(clippy::ptr_arg)]
+                        pub fn #fn_name<T>(self, prop_name: &str, value: &T) -> #bn<Conditional> where T: Serialize {
+                            let mut new_bind_vars = self.bind_vars;
+                            let bind_var_name = format!("filterVar{}", new_bind_vars.len());
+
+                            new_bind_vars
+                                .insert(bind_var_name.clone(), serde_json::to_value(&value).unwrap());
+
+                            let mut new_raw_query = self.raw_query;
+                            new_raw_query.push(format!("item.{} {} @{}", prop_name, #op, bind_var_name));
+
+                            #bn {
+                                query_type: self.query_type,
+                                tag: Conditional,
+                                bind_vars: new_bind_vars,
+                                raw_query: new_raw_query,
+                            }
+                        }
+                    ]
+            }
+        })
+    .collect::<Vec<TokenStream2>>();
 
     // Struct specific methods for field based updating
     let with_qs = struct_definition
@@ -241,6 +311,8 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
 
         impl<Tag: Conditionable> #builder_name<Tag> {
             #(#condition_qs)*
+
+            #(#condition_qs_str)*
         }
 
         impl<Tag: UpdateWith> #builder_name<Tag> {
