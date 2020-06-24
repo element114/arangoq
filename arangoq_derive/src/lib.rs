@@ -361,7 +361,7 @@ fn _arango_builder(struct_definition: ItemStruct) -> TokenStream2 {
         }
 
         impl <Tag: Sortable> #builder_name<Tag> {
-            fn sort(self, sort_by: &str, direction: SortingDirection) -> #builder_name<Sorting> {
+            pub fn sort(self, sort_by: &str, direction: SortingDirection) -> #builder_name<Sorting> {
                 let mut new_raw_query = self.raw_query;
                 new_raw_query.push(String::from("SORT item.@sort_by"));
 
