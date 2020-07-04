@@ -1,8 +1,13 @@
 [package]
 name = "arangoq_derive"
 version = "0.1.2"
-authors = ["bsoptei <bsoptei@gmail.com>"]
+authors = ["Balázs Söptei <bsoptei@gmail.com>", "Andras Mocsary <nobody@reedwolf.com>"]
+repository = "https://github.com/element114/arangoq/arangoq_derive"
+documentation = "https://docs.rs/arangoq_derive"
+license = "MIT OR Apache-2.0"
+description = "An AQL query builder proc/derive macro for arangoq."
 edition = "2018"
+publish = true
 
 [dependencies]
 proc-macro2 = "0.4.30"
