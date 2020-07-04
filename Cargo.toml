@@ -14,7 +14,7 @@ publish = true
 [dependencies]
 actix = { version = "0.9", optional = true }
 # actix = { path = "./actix" }
-arangoq_derive = { path = "./arangoq_derive" }
+arangoq_derive = { version = "0.1.2", path = "./arangoq_derive" }
 futures = "0.3"
 log = "0.4"
 maplit = "1.0"
