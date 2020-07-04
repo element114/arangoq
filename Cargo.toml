@@ -37,3 +37,7 @@ lazy_static = "1.4.0"
 mockito = "0.23.3"
 proptest = "0.9"
 proptest-derive = "0.1.2"
+
+
+[workspace]
+members = ["arangoq_derive"]
