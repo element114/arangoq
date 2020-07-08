@@ -16,7 +16,6 @@ mod tests {
     use crate::test::ArangoMock;
     use crate::ArangoBuilder;
     use maplit::hashmap;
-    use mockito;
     use mockito::{mock, Matcher};
     use reqwest::Client;
     use serde::{Deserialize, Serialize};
@@ -119,6 +118,8 @@ mod tests {
         assert_eq!(expected, serde_json::to_string(&query).unwrap());
     }
 
+    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::similar_names)]
     #[test]
     fn test_generated_arango_builder() {
         #[derive(ArangoBuilder, Serialize)]
@@ -273,7 +274,7 @@ mod tests {
             ),
         ];
 
-        for (query, expected) in values.into_iter() {
+        for (query, expected) in values {
             assert_eq!(expected, serde_json::to_string(&query).unwrap());
         }
     }
@@ -302,7 +303,7 @@ mod tests {
             vec![U::new("13221", "Characters/13221", "_ZEJkt1W---", "John Doe")],
             false,
             false,
-            ResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654956817626953e-4, 2107, vec![]),
+            ResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654_956_817_626_953e-4, 2107, vec![]),
             false,
             201,
             String::new(),

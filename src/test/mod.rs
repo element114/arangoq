@@ -79,7 +79,8 @@ impl<T: Serialize> From<crate::arango_response::ArangoResponse<T>> for TestRespo
 #[cfg(test)]
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::*;
+    use super::TestResponse;
+    use serde::Serialize;
 
     #[derive(Serialize, Default)]
     struct TestData {
