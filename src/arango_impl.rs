@@ -3,9 +3,8 @@ use super::{
     CursorExtractor, GetAll, GetByKey, GetByKeys, Insert, Remove, Replace, Truncate, Update,
 };
 use core::future::Future;
-use futures::future::TryFutureExt;
+use futures_util::future::TryFutureExt;
 use serde::Serialize;
-// use maplit::*;
 use serde::de::DeserializeOwned;
 use serde_json::value::Value;
 use std::collections::BTreeMap;
