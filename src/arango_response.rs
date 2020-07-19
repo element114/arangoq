@@ -62,6 +62,7 @@ impl ResponseExtra {
         filtered: usize,
         http_requests: usize,
         execution_time: f64,
+        full_count: usize,
         peak_memory_usage: usize,
         warnings: Vec<String>,
     ) -> Self {
@@ -74,6 +75,7 @@ impl ResponseExtra {
                 filtered,
                 http_requests,
                 execution_time,
+                full_count,
                 peak_memory_usage,
             },
             warnings,
@@ -81,19 +83,26 @@ impl ResponseExtra {
     }
 }
 
+/// <https://www.arangodb.com/docs/stable/aql/execution-and-performance-query-statistics.html>
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub struct ArangoStats {
+    /// The total number of data-modification operations successfully executed.
     #[serde(rename = "writesExecuted", default)]
     pub writes_executed: usize,
 
+    /// The total number of data-modification operations that were unsuccessful, but have been ignored because of query option `ignoreErrors`.
     #[serde(rename = "writesIgnored", default)]
     pub writes_ignored: usize,
 
+    /// The total number of documents iterated over when scanning a collection without an index.
     #[serde(rename = "scannedFull", default)]
     pub scanned_full: usize,
 
+    /// The total number of documents iterated over when scanning a collection using an index.
     #[serde(rename = "scannedIndex", default)]
     pub scanned_index: usize,
+
+    /// The total number of documents that were removed after executing a filter condition.
     #[serde(default)]
     pub filtered: usize,
 
@@ -103,6 +112,11 @@ pub struct ArangoStats {
     #[serde(rename = "executionTime", default)]
     pub execution_time: f64,
 
+    /// The total number of documents that matched the search condition.
+    #[serde(rename = "fullCount", default)]
+    pub full_count: usize,
+
+    /// The maximum memory usage of the query while it was running.
     #[serde(rename = "peakMemoryUsage", default)]
     pub peak_memory_usage: usize,
 }

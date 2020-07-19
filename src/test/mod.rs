@@ -92,7 +92,7 @@ mod tests {
         let t = TestResponse::new();
         let r = serde_json::to_string(&t).unwrap();
         assert_eq!(
-            r#"{"result":[],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0,"peakMemoryUsage":0},"warnings":[]},"error":false,"code":0}"#,
+            r#"{"result":[],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0,"fullCount":0,"peakMemoryUsage":0},"warnings":[]},"error":false,"code":0}"#,
             r
         );
 
@@ -105,7 +105,7 @@ mod tests {
         let t = TestResponse::with_code(401);
         let r = serde_json::to_string(&t).unwrap();
         assert_eq!(
-            r#"{"result":[],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0003654956817626953,"peakMemoryUsage":2019},"warnings":[]},"error":false,"code":401}"#,
+            r#"{"result":[],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0003654956817626953,"fullCount":0,"peakMemoryUsage":2019},"warnings":[]},"error":false,"code":401}"#,
             r
         );
     }

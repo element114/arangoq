@@ -303,7 +303,7 @@ mod tests {
             vec![U::new("13221", "Characters/13221", "_ZEJkt1W---", "John Doe")],
             false,
             false,
-            ResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654_956_817_626_953e-4, 2107, vec![]),
+            ResponseExtra::new(0, 0, 0, 0, 0, 0, 3.654_956_817_626_953e-4, 2, 2107, vec![]),
             false,
             201,
             String::new(),
@@ -313,7 +313,7 @@ mod tests {
     }
 
     fn test_response_json() -> &'static str {
-        r#"{"result":[{"_key":"13221","_id":"Characters/13221","_rev":"_ZEJkt1W---","name":"John Doe"}],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0003654956817626953,"peakMemoryUsage":2107},"warnings":[]},"error":false,"code":201}"#
+        r#"{"result":[{"_key":"13221","_id":"Characters/13221","_rev":"_ZEJkt1W---","name":"John Doe"}],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":0,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0003654956817626953,"fullCount":2,"peakMemoryUsage":2107},"warnings":[]},"error":false,"code":201}"#
     }
 
     #[test]
@@ -424,7 +424,7 @@ mod tests {
             vec![1, 2, 3],
             true,
             false,
-            ResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
+            ResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 2, 1, vec![]),
             false,
             201,
             String::default(),
@@ -436,7 +436,7 @@ mod tests {
             vec![4, 5, 6],
             true,
             false,
-            ResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 1, vec![]),
+            ResponseExtra::new(0, 0, 7, 0, 0, 0, 0.00001, 2, 1, vec![]),
             false,
             200,
             String::default(),
