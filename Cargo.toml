@@ -1,6 +1,6 @@
 [package]
 name = "arangoq"
-version = "0.3.3"
+version = "0.3.4-alpha.0"
 authors = ["Andras Mocsary <nobody@reedwolf.com>", "Balázs Söptei <bsoptei@gmail.com>"]
 repository = "https://github.com/element114/arangoq"
 documentation = "https://docs.rs/arangoq"
