@@ -12,6 +12,10 @@ pub struct ArangoQuery {
 
     #[serde(skip_serializing_if = "Option::is_none", rename = "batchSize")]
     pub(crate) batch_size: Option<usize>,
+
+    /// If set to true, ArangoDB will return the fullCount in query statistics.
+    #[serde(skip_serializing_if = "Option::is_none", rename = "fullCount")]
+    pub(crate) full_count: Option<bool>,
 }
 
 #[derive(Debug)]

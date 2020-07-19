@@ -51,13 +51,19 @@ impl ArangoQuery {
         bind_vars: BTreeMap<String, Value>,
         batch_size: usize,
     ) -> Self {
-        ArangoQuery { query, bind_vars, batch_size: Some(batch_size) }
+        ArangoQuery { query, bind_vars, batch_size: Some(batch_size), full_count: None }
     }
 
     #[must_use]
-    /// Converts an existing query to `batched` of size `batch_size`
+    /// Converts an existing query to `batched` of size `batch_size`.
     pub fn into_batched(self, batch_size: usize) -> Self {
-        Self { query: self.query, bind_vars: self.bind_vars, batch_size: Some(batch_size) }
+        Self { query: self.query, bind_vars: self.bind_vars, batch_size: Some(batch_size), full_count: None }
+    }
+
+    #[must_use]
+    /// Enables `fullCount` in the query stats of an existing query.
+    pub fn full_count(self, full_count: bool) -> Self {
+        Self { query: self.query, bind_vars: self.bind_vars, batch_size: self.batch_size, full_count: Some(full_count) }
     }
 
     /// Executes this query using the provided `ArangoConnection`.
