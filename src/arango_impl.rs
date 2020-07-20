@@ -1,11 +1,14 @@
-use super::{
-    btreemap, ArangoConnection, ArangoQuery, ArangoResponse, Collection, CollectionType,
-    CursorExtractor, GetAll, GetByKey, GetByKeys, Insert, Remove, Replace, Truncate, Update,
+use crate::arango_api::{
+    ArangoQuery, Collection, CollectionType, CursorExtractor, GetAll, GetByKey, GetByKeys, Insert,
+    Options, Remove, Replace, Truncate, Update,
 };
+use crate::arango_connection::ArangoConnection;
+use crate::arango_response::ArangoResponse;
 use core::future::Future;
 use futures_util::future::TryFutureExt;
-use serde::Serialize;
+use maplit::btreemap;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use serde_json::value::Value;
 use std::collections::BTreeMap;
 
@@ -51,19 +54,30 @@ impl ArangoQuery {
         bind_vars: BTreeMap<String, Value>,
         batch_size: usize,
     ) -> Self {
-        ArangoQuery { query, bind_vars, batch_size: Some(batch_size), full_count: None }
+        ArangoQuery { query, bind_vars, batch_size: Some(batch_size), options: None }
     }
 
     #[must_use]
     /// Converts an existing query to `batched` of size `batch_size`.
     pub fn into_batched(self, batch_size: usize) -> Self {
-        Self { query: self.query, bind_vars: self.bind_vars, batch_size: Some(batch_size), full_count: None }
+        Self {
+            query: self.query,
+            bind_vars: self.bind_vars,
+            batch_size: Some(batch_size),
+            options: None,
+        }
     }
 
     #[must_use]
     /// Enables `fullCount` in the query stats of an existing query.
     pub fn full_count(self, full_count: bool) -> Self {
-        Self { query: self.query, bind_vars: self.bind_vars, batch_size: self.batch_size, full_count: Some(full_count) }
+        let options = Options { full_count: Some(full_count) };
+        Self {
+            query: self.query,
+            bind_vars: self.bind_vars,
+            batch_size: self.batch_size,
+            options: Some(options),
+        }
     }
 
     /// Executes this query using the provided `ArangoConnection`.

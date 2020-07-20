@@ -23,4 +23,3 @@ mod arango_impl;
 mod arango_test;
 
 pub use arangoq_derive::*;
-pub(crate) use maplit::*;
