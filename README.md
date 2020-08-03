@@ -27,11 +27,11 @@ A quick arangodb query builder layer for rust.
 ```
 
 ## Similar crates
-When [arangors](https://github.com/element114/oas_gen) was published on crates.io we already used `arangoq` internally at Reed Wolf Ltd. Last time we evaluated `arangors`, it was in an early stage, many of it's api were skeleton only.
-Today the two crates share minimal functionalities. The focus of `aragors` is to be similar to the Python crate, whereas `arangoq` provides a more Rust like, high level query builder experience and was designed to be more **resilient to insertion attacks** right from the start.
+[arangors](https://github.com/element114/oas_gen) born roughly at the same time as `arangoq` with a focus on becoming similar to the Python package.
+`arangoq` provides a different funcionality set: a more Rust like, high level query builder experience. It was designed to be more **resilient to insertion attacks** right from the start.
 
 We performed several manual tests to make sure it fits our use-case.
-That said, ss always, **use at your own risk**.
+That said, as always, **use at your own risk**.
 
 ## optional features
    * ["actors"] actix async actor implementation for queries
