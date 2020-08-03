@@ -8,6 +8,9 @@ license = "MIT OR Apache-2.0"
 description = "An AQL query builder layer and ArangoDb client for rust."
 edition = "2018"
 publish = true
+readme = "README.md"
+include = ["README.md", "LICENSE-APACHE", "LICENSE-MIT"]
+keywords = ["nosql", "key-value", "graph-db", "database", "arangodb"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

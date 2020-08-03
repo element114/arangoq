@@ -1,6 +1,7 @@
 # arangoq
 A quick arangodb query builder layer for rust.
 
+## Arangoq in action
 ```rust
    let url = || mockito::server_url();
    let conn = ArangoConnection::new(url(), "test_db".to_string(), Client::default());
