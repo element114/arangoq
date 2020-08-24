@@ -18,7 +18,7 @@ keywords = ["nosql", "key-value", "graph-db", "database", "arangodb"]
 actix = { version = "0.9", optional = true }
 # actix = { path = "./actix" }
 arangoq_derive = { version = "0.1.2", path = "./arangoq_derive" }
-#futures = "0.3"
+# futures = "0.3"
 log = "0.4"
 maplit = "1.0"
 serde = { version = "1.0", features = ["derive"] }
