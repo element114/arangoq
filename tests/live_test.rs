@@ -1,7 +1,7 @@
 #[cfg(feature = "actors")]
 use actix::{Actor, System};
 #[cfg(feature = "actors")]
-use actix_rt::spawn;
+use actix_rt::{spawn, test};
 use arangoq::*;
 #[cfg(feature = "actors")]
 use futures::future::FutureExt;
@@ -9,16 +9,17 @@ use lazy_static::*;
 use proptest::prelude::*;
 use proptest_derive::Arbitrary;
 use serde::{Deserialize, Serialize};
+#[macro_use] extern crate log;
 
 lazy_static! {
     static ref DATABASE: ArangoConnection = {
         std::env::set_var("RUST_LOG", "debug,hyper=info,tokio_reactor=info");
         let _res = env_logger::try_init();
         //set db password
-        std::env::set_var("ARANGO_USER_NAME", "arangoq");
-        std::env::set_var("ARANGO_PASSWORD", "arangoq");
+        std::env::set_var("ARANGO_USER_NAME", "test_dev");
+        std::env::set_var("ARANGO_PASSWORD", "test_dev_pw");
         let db_host = "http://localhost:8529/".to_owned();
-        let db_name = "evt_test".to_owned();
+        let db_name = "test_dev".to_owned();
         // create new connection to local db
         ArangoConnection::new(
             db_host,
@@ -31,7 +32,7 @@ lazy_static! {
 #[cfg(feature = "actors")]
 proptest! {
 #![proptest_config(ProptestConfig::with_cases(1))]
-#[ignore]
+// #[ignore]
 #[test]
 /// These tests verify that generated query objects and responses work well
 /// with a real arangodb instance.

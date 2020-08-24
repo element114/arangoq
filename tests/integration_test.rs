@@ -20,7 +20,7 @@ fn test_async_tooling() {
     std::env::set_var("ARANGO_PASSWORD", "notarealpw");
 
     let mock_resp = r#"{"result":[{"_key":"537130","id":8,"name":"NU","parent_id":"organizers/4242"}],"hasMore":false,"cached":false,"extra":{"stats":{"writesExecuted":0,"writesIgnored":0,"scannedFull":1,"scannedIndex":0,"filtered":0,"httpRequests":0,"executionTime":0.0012001991271972656,"peakMemoryUsage":8007},"warnings":[]},"error":false,"code":201}"#;
-    let _m = mock("POST", "/_db/evt_test/_api/cursor")
+    let _m = mock("POST", "/_db/test_dev/_api/cursor")
         .with_status(200)
         .with_header("content-type", "application/json")
         .with_body(mock_resp)
