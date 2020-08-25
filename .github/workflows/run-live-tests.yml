@@ -1,0 +1,24 @@
+name: Run tests
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:  
+  run_live_test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+    - name: Setup db
+      run: docker run -e ARANGO_ROOT_PASSWORD=test_password -e ARANGODB_OVERRIDE_DETECTED_TOTAL_MEMORY=2G -e ARANGODB_OVERRIDE_DETECTED_NUMBER_OF_CORES=2 -p 8529:8529 -d arangodb
+    - name: Add test data
+      run: |
+        sleep 10
+        ./tests/createArangoUser.sh
+        ./tests/createArangoDatabase.sh
+    - name: Run tests
+      run: cargo test --test async_live_test
